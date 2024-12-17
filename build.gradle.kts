@@ -66,8 +66,8 @@ publishing {
                 authentication.create<BasicAuthentication>("basic")
             }
         } else {
-            // maven { url = uri(layout.buildDirectory.dir("mavenLocal")) }
-            mavenLocal()
+            maven { url = uri(layout.buildDirectory.dir("mavenLocal")) }
+            // mavenLocal()
         }
     }
 }
