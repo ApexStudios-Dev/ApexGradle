@@ -58,7 +58,7 @@ publishing {
             maven("https://maven.apexstudios.dev/releases") {
                 name = "ApexStudios-Releases"
 
-                credentials(PasswordCredentials::class) {
+                credentials {
                     username = System.getenv("MAVEN_USERNAME")
                     password = System.getenv("MAVEN_PASSWORD")
                 }
