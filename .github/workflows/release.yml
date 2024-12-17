@@ -31,6 +31,9 @@ jobs:
               with:
                   cache-disabled: true # we use a local runner, caching is not required
 
+            - name: Mark Gradle as Executable
+              run: chmod +x ./gradlew
+
             - name: Publish
               run: ./gradlew :publish
               env:
