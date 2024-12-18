@@ -2,6 +2,7 @@ package dev.apexstudios.gradle
 
 import net.neoforged.moddevgradle.dsl.NeoForgeExtension
 import net.neoforged.moddevgradle.dsl.RunModel
+import net.swiftzer.semver.SemVer
 import org.gradle.api.Action
 import org.gradle.api.Project
 import org.gradle.api.provider.Property
@@ -50,9 +51,14 @@ abstract class ApexExtension {
             }
 
             runs.create(DATA_NAME) {
-                data()
                 sourceSet.set(dataSource)
                 loadedMods.set(listOf(mod))
+                type.set(version.map {
+                    if(SemVer.parse(it) < TWENTY_ONE_FOUR)
+                        return@map "data"
+                    else
+                        return@map "serverData"
+                })
 
                 programArguments.addAll(getProject().provider {
                     listOf(
@@ -88,6 +94,8 @@ abstract class ApexExtension {
     companion object {
         const val DATA_NAME = "data"
         val IS_CI = System.getenv("IS_CI").toBoolean()
+
+        private val TWENTY_ONE_FOUR = SemVer.parse("21.4.0")
 
         fun getOrCreate(project: Project): ApexExtension {
             var extension = project.extensions.findByType(ApexExtension::class.java)

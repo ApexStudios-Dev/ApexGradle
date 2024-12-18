@@ -5,6 +5,7 @@ dependencyResolutionManagement {
         }
 
         library("immaculate", "dev.lukebemish.immaculate", "dev.lukebemish.immaculate.gradle.plugin").version("0.1.6")
+        library("semver", "net.swiftzer.semver", "semver").version("2.0.0")
 
         plugin("ideaext", "org.jetbrains.gradle.plugin.idea-ext").version("1.1.8")
     }
