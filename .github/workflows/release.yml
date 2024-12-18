@@ -30,6 +30,8 @@ jobs:
         name: Test - ${{ needs.vars.outputs.version }}
         needs: [ vars ]
         runs-on: apexstudios
+        env:
+            VERSION: ${{ needs.vars.outputs.version }}
         steps:
             - name: Checkout repository
               uses: actions/checkout@v4
@@ -55,6 +57,8 @@ jobs:
         name: Publish - ${{ needs.vars.outputs.version }}
         needs: [ vars, test ]
         runs-on: apexstudios
+        env:
+            VERSION: ${{ needs.vars.outputs.version }}
         steps:
             - name: Checkout repository
               uses: actions/checkout@v4
@@ -76,6 +80,5 @@ jobs:
             - name: Publish
               run: ./gradlew :publish
               env:
-                  VERSION: ${{ needs.vars.outputs.version }}
                   MAVEN_USERNAME: ${{ secrets.MAVEN_USERNAME }}
                   MAVEN_PASSWORD: ${{ secrets.MAVEN_PASSWORD }}
