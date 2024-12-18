@@ -4,6 +4,7 @@ plugins {
     `maven-publish`
 
     alias(libs.plugins.ideaext)
+    alias(libs.plugins.immaculate)
 }
 
 val IS_CI = System.getenv("CI").toBoolean()
@@ -51,6 +52,34 @@ dependencies {
 tasks.withType<JavaCompile> {
     options.encoding = "UTF-8"
     options.release.set(17)
+}
+
+immaculate {
+    // try to also match convention script
+    workflows.create("java") {
+        java()
+
+        noTrailingSpaces()
+        noTabs()
+        googleFixImports()
+
+        toggleOff = "formatter:off"
+        toggleOn = "formatter:on"
+
+        custom("jetbrainsNullable") {
+            it.replace("javax.annotation.Nullable", "org.jetbrains.annotations.Nullable")
+        }
+    }
+
+    workflows.create("kotlin") {
+        files.from(fileTree("src").filter { it.extension == "kts" || it.extension == "kt" })
+
+        noTrailingSpaces()
+        noTabs()
+
+        toggleOff = "formatter:off"
+        toggleOn = "formatter:on"
+    }
 }
 
 publishing {

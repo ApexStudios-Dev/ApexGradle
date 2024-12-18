@@ -5,12 +5,13 @@ plugins {
 immaculate {
     workflows.create("java") {
         java()
-        trailingNewline()
+
+        noTrailingSpaces()
         noTabs()
         googleFixImports()
 
-        toggleOff = "spotless:off"
-        toggleOn = "spotless:on"
+        toggleOff = "formatter:off"
+        toggleOn = "formatter:on"
 
         custom("jetbrainsNullable") {
             it.replace("javax.annotation.Nullable", "org.jetbrains.annotations.Nullable")
