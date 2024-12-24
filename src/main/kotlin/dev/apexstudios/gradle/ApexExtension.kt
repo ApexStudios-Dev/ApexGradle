@@ -42,7 +42,7 @@ abstract class ApexExtension {
 
         val dataSource = withSourceSet(DATA_NAME)
 
-        getProject().extensions.configure(NeoForgeExtension::class.java) {
+        neoForge {
             addModdingDependenciesTo(dataSource)
 
             val mod = mods.create(DATA_NAME) {
@@ -53,8 +53,9 @@ abstract class ApexExtension {
             runs.create(DATA_NAME) {
                 sourceSet.set(dataSource)
                 loadedMods.set(listOf(mod))
+
                 type.set(version.map {
-                    if(SemVer.parse(it) < TWENTY_ONE_FOUR)
+                    if(SemVer.parse(it.split("-")[0]) < TWENTY_ONE_FOUR)
                         return@map "data"
                     else
                         return@map "serverData"
@@ -84,12 +85,54 @@ abstract class ApexExtension {
         }
     }
 
+    fun neoVersion(loaderVersion: String, parchmentVersion: String?, parchmentMappings: String?) {
+        // <major>.<minor>[-beta][-pr-#-<branch>]
+        val tokens = loaderVersion.split("-", limit = 3)
+
+        if(tokens.size >= 3) {
+            val prNum = tokens[2].split("-")[1]
+
+            getProject().repositories.maven {
+                name = "NeoForge - PR #$prNum"
+                setUrl("https://prmaven.neoforged.net/NeoForge/pr$prNum")
+
+                content {
+                    includeModule("net.neoforged", "testframework")
+                    includeModule("net.neoforged", "neoforge")
+                }
+            }
+        }
+
+        neoForge {
+            version.set(loaderVersion)
+
+            parchment {
+                if(parchmentMappings != null) {
+                    var gameVersion = parchmentVersion
+
+                    if(parchmentVersion == null) {
+                        val neoVersion = tokens[0]
+                        gameVersion = "1.${neoVersion.substring(0, neoVersion.lastIndexOf("."))}"
+                    }
+
+                    minecraftVersion.set(gameVersion)
+                    mappingsVersion.set(parchmentMappings)
+                }
+            }
+        }
+    }
+
+    fun neoVersion(loaderVersion: String, parchmentMappings: String?) = neoVersion(loaderVersion, null, parchmentMappings)
+    fun neoVersion(loaderVersion: String) = neoVersion(loaderVersion, null, null)
+
     @Inject
     constructor(project: Project) {
         getJavaVersion().convention(JavaLanguageVersion.of(21))
         getJavaVendor().convention(project.provider { if(IS_CI) JvmVendorSpec.ADOPTIUM else JvmVendorSpec.JETBRAINS })
         getModId().convention(project.provider { project.name.lowercase() })
     }
+
+    private fun neoForge(action: Action<NeoForgeExtension>) = getProject().extensions.configure(NeoForgeExtension::class.java, action)
 
     companion object {
         const val DATA_NAME = "data"
