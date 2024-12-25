@@ -58,7 +58,7 @@ abstract class ApexExtension {
                     if(SemVer.parse(it.split("-")[0]) < TWENTY_ONE_FOUR)
                         return@map "data"
                     else
-                        return@map "serverData"
+                        return@map "clientData"
                 })
 
                 programArguments.addAll(getProject().provider {
