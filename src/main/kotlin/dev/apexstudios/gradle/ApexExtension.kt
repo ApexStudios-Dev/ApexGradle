@@ -2,25 +2,18 @@ package dev.apexstudios.gradle
 
 import net.neoforged.moddevgradle.dsl.NeoForgeExtension
 import net.neoforged.moddevgradle.dsl.RunModel
-import net.swiftzer.semver.SemVer
 import org.gradle.api.Action
 import org.gradle.api.Project
 import org.gradle.api.provider.Property
-import org.gradle.api.provider.Provider
 import org.gradle.api.tasks.SourceSet
 import org.gradle.api.tasks.compile.JavaCompile
-import org.gradle.jvm.toolchain.JavaLanguageVersion
 import org.gradle.jvm.toolchain.JvmVendorSpec
 import javax.inject.Inject
 
 abstract class ApexExtension {
     abstract fun getModId(): Property<String>
-    abstract fun getJavaVersion(): Property<JavaLanguageVersion>
     abstract fun getJavaVendor(): Property<JvmVendorSpec>
     @Inject abstract fun getProject(): Project
-
-    fun javaVersion(javaVersion: Provider<Int>) = getJavaVersion().convention(javaVersion.map(JavaLanguageVersion::of))
-    fun javaVersion(javaVersion: Int) = javaVersion(getProject().provider { javaVersion })
 
     fun extendCompilerErrors(extendWarnings: Boolean = false) {
         getProject().tasks.withType(JavaCompile::class.java) {
@@ -51,15 +44,13 @@ abstract class ApexExtension {
             }
 
             runs.create(DATA_NAME) {
+                if(versionCapabilities.splitDataRuns())
+                    clientData()
+                else
+                    data()
+
                 sourceSet.set(dataSource)
                 loadedMods.set(listOf(mod))
-
-                type.set(version.map {
-                    if(SemVer.parse(it.split("-")[0]) < TWENTY_ONE_FOUR)
-                        return@map "data"
-                    else
-                        return@map "clientData"
-                })
 
                 programArguments.addAll(getProject().provider {
                     listOf(
@@ -104,7 +95,7 @@ abstract class ApexExtension {
         }
 
         neoForge {
-            version.set(loaderVersion)
+            version = loaderVersion
 
             parchment {
                 if(parchmentMappings != null) {
@@ -127,7 +118,6 @@ abstract class ApexExtension {
 
     @Inject
     constructor(project: Project) {
-        getJavaVersion().convention(JavaLanguageVersion.of(21))
         getJavaVendor().convention(project.provider { if(IS_CI) JvmVendorSpec.ADOPTIUM else JvmVendorSpec.JETBRAINS })
         getModId().convention(project.provider { project.name.lowercase() })
     }
@@ -137,8 +127,6 @@ abstract class ApexExtension {
     companion object {
         const val DATA_NAME = "data"
         val IS_CI = System.getenv("IS_CI").toBoolean()
-
-        private val TWENTY_ONE_FOUR = SemVer.parse("21.4.0")
 
         fun getOrCreate(project: Project): ApexExtension {
             var extension = project.extensions.findByType(ApexExtension::class.java)

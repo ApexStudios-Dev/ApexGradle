@@ -7,10 +7,8 @@ pluginManagement {
 dependencyResolutionManagement {
     versionCatalogs.create("libs") {
         library("moddevgradle", "net.neoforged.moddev", "net.neoforged.moddev.gradle.plugin").version {
-            strictly("[2.0.50-beta,)")
+            strictly("[2.0.71,)")
         }
-
-        library("semver", "net.swiftzer.semver", "semver").version("2.0.0")
 
         plugin("ideaext", "org.jetbrains.gradle.plugin.idea-ext").version("1.1.8")
 

@@ -1,12 +1,12 @@
 import dev.apexstudios.gradle.ApexExtension
-import net.neoforged.moddevgradle.dsl.NeoForgeExtension
+import net.neoforged.moddevgradle.dsl.ModDevExtension
 import org.slf4j.event.Level
 
 plugins {
     id("apex-conventions.java")
 }
 
-extensions.configure(NeoForgeExtension::class.java) {
+extensions.configure(ModDevExtension::class.java) {
     validateAccessTransformers.set(true)
 
     val atFile = file("src/main/resources/META-INF/accesstransformer.cfg")

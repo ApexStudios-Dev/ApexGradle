@@ -3,7 +3,7 @@ plugins {
     id("apex-conventions.neoforge-base")
 }
 
-neoForge {
+legacyForge {
     // while this should work fine for mods
     // legacy MinecraftForge ATs are not valid
     // causing the compile to fail running into invalid AT files

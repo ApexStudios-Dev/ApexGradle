@@ -1,6 +1,5 @@
 import dev.apexstudios.gradle.ApexExtension
 
-
 plugins {
     `java-library`
     id("org.jetbrains.gradle.plugin.idea-ext")
@@ -25,7 +24,6 @@ idea.module {
 
 java {
     toolchain {
-        languageVersion.set(apex.getJavaVersion())
         vendor.set(apex.getJavaVendor())
     }
 
@@ -33,13 +31,11 @@ java {
 }
 
 javaToolchains.compilerFor {
-    languageVersion.set(apex.getJavaVersion())
     vendor.set(apex.getJavaVendor())
 }
 
 tasks.withType<JavaCompile> {
     options.encoding = "UTF-8"
-    options.release.set(apex.getJavaVersion().map(JavaLanguageVersion::asInt))
 }
 
 repositories {
