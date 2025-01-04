@@ -7,10 +7,10 @@ pluginManagement {
 dependencyResolutionManagement {
     versionCatalogs.create("libs") {
         library("moddevgradle", "net.neoforged.moddev", "net.neoforged.moddev.gradle.plugin").version {
-            strictly("[2.0.71,)")
+            strictly("[2.0.72,2.1.0)")
         }
 
-        plugin("ideaext", "org.jetbrains.gradle.plugin.idea-ext").version("1.1.8")
+        plugin("ideaext", "org.jetbrains.gradle.plugin.idea-ext").version("1.1.9")
 
         version("immaculate", "0.1.6")
         library("immaculate", "dev.lukebemish.immaculate", "dev.lukebemish.immaculate.gradle.plugin").versionRef("immaculate")
