@@ -34,7 +34,7 @@ class ModuleBuilder {
         return this
     }
 
-    internal fun build(): ApexModule = ApexModule(id, hasData, dependencies.toSet(), basePath ?: id.capitalized())
+    internal fun build(): ApexModule = ApexModule(id, hasData, dependencies.toSet(), basePath)
 
     class ModulesBuilder {
         var modules: Map<String, ApexModule> = mutableMapOf()
@@ -46,13 +46,21 @@ class ModuleBuilder {
             modules += Pair(id, module)
         }
 
-        internal fun initialize(project: Project) {
-            modules.values.forEach { initializeModule(project, it) }
-            modules.values.forEach { setupModuleDependencies(project, it) }
+        internal fun initialize(apex: ApexExtension) {
+            modules.values.forEach { initializeModule(apex, it) }
+            modules.values.forEach { setupModuleDependencies(apex, it) }
         }
 
-        private fun initializeModule(project: Project, module: ApexModule) {
-            val apex = ApexExtension.getOrCreate(project)
+        private fun withSourceSet(apex: ApexExtension, name: String, mutator: Action<SourceSet>?): SourceSet = apex.withSourceSet(name) {
+            val project = apex.getProject()
+            val main = SourceSetExtensions.sourceSets(project).getByName(SourceSet.MAIN_SOURCE_SET_NAME)
+            project.tasks.getByName(main.classesTaskName).dependsOn(classesTaskName)
+            project.tasks.getByName(main.processResourcesTaskName).dependsOn(processResourcesTaskName)
+            mutator?.execute(this)
+        }
+
+        private fun initializeModule(apex: ApexExtension, module: ApexModule) {
+            val project = apex.getProject()
             val mainId = module.id(SourceSet.MAIN_SOURCE_SET_NAME)
             val mainDir = module.path("src/${SourceSet.MAIN_SOURCE_SET_NAME}")
 
@@ -69,7 +77,7 @@ class ModuleBuilder {
                 }
             }
 
-            val main = apex.withSourceSet(mainId) {
+            val main = withSourceSet(apex, mainId) {
                 java.setSrcDirs(project.files("$mainDir/java"))
                 resources.setSrcDirs(project.files("$mainDir/resources"))
             }
@@ -103,7 +111,7 @@ class ModuleBuilder {
 
                 main.resources.srcDir(project.file("${dataDir}/generated"))
 
-                val data = apex.withSourceSet(dataId) {
+                val data = withSourceSet(apex, dataId) {
                     java.setSrcDirs(project.files("$dataDir/java"))
                     resources.setSrcDirs(project.files("$dataDir/resources"))
                     extend(main)
@@ -137,8 +145,8 @@ class ModuleBuilder {
             }
         }
 
-        private fun setupModuleDependencies(project: Project, module: ApexModule) {
-            val apex = ApexExtension.getOrCreate(project)
+        private fun setupModuleDependencies(apex: ApexExtension, module: ApexModule) {
+            val project = apex.getProject()
             val sourceSets = SourceSetExtensions.sourceSets(project)
 
             val moduleMainId = module.id(SourceSet.MAIN_SOURCE_SET_NAME)
@@ -168,7 +176,7 @@ class ModuleBuilder {
         fun modules(project: Project, action: Action<ModulesBuilder>) {
             var builder = ModulesBuilder()
             action.execute(builder)
-            builder.initialize(project)
+            builder.initialize(ApexExtension.getOrCreate(project))
         }
     }
 }

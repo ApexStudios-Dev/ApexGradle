@@ -29,7 +29,7 @@ abstract class ApexSingleExtension : BaseApexExtension {
             }
         }
 
-        val dataSource = withSourceSet(DATA_NAME)
+        val dataSource = withSourceSet(DATA_NAME, true)
 
         neoForge {
             addModdingDependenciesTo(dataSource)

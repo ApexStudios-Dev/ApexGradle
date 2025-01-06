@@ -23,11 +23,6 @@ abstract class ApexExtension : BaseApexExtension {
     }
 
     override fun withSourceSet(name: String, mutator: Action<SourceSet>?): SourceSet = SourceSetExtensions.sourceSets(getProject()).create(name) {
-        val project = getProject()
-        val main = SourceSetExtensions.sourceSets(project).getByName(SourceSet.MAIN_SOURCE_SET_NAME)
-        project.tasks.getByName(main.classesTaskName).dependsOn(classesTaskName)
-        project.tasks.getByName(main.processResourcesTaskName).dependsOn(processResourcesTaskName)
-
         neoForge { addModdingDependenciesTo(this@create) }
 
         mutator?.execute(this)
