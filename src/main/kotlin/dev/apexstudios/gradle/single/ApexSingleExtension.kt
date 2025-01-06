@@ -9,6 +9,7 @@ import net.neoforged.moddevgradle.dsl.RunModel
 import org.gradle.api.Action
 import org.gradle.api.GradleException
 import org.gradle.api.Project
+import org.gradle.api.plugins.JavaPluginExtension
 import org.gradle.api.provider.Property
 import org.gradle.api.tasks.SourceSet
 import org.gradle.jvm.toolchain.JvmVendorSpec
@@ -22,7 +23,9 @@ abstract class ApexSingleExtension : BaseApexExtension {
     override fun withSourceSet(name: String, mutator: Action<SourceSet>?): SourceSet = apex().withSourceSet(name, mutator)
 
     fun withDataGen(runMutator: Action<RunModel>? = null) {
-        val mainSource = SourceSetExtensions.sourceSets(getProject()).getByName(SourceSet.MAIN_SOURCE_SET_NAME) {
+        val project = getProject()
+        val javaExt = project.extensions.getByType(JavaPluginExtension::class.java)
+        val mainSource = SourceSetExtensions.sourceSets(project).getByName(SourceSet.MAIN_SOURCE_SET_NAME) {
             resources {
                 exclude(".cache")
                 srcDir("src/$DATA_NAME/generated")
@@ -30,6 +33,12 @@ abstract class ApexSingleExtension : BaseApexExtension {
         }
 
         val dataSource = withSourceSet(DATA_NAME, true)
+
+        javaExt.registerFeature(DATA_NAME) {
+            usingSourceSet(dataSource)
+            withSourcesJar()
+            capability(project.group as String, DATA_NAME, project.version as String)
+        }
 
         neoForge {
             addModdingDependenciesTo(dataSource)
@@ -48,13 +57,13 @@ abstract class ApexSingleExtension : BaseApexExtension {
                 sourceSet.set(dataSource)
                 loadedMods.set(listOf(mod))
 
-                programArguments.addAll(getProject().provider {
+                programArguments.addAll(project.provider {
                     listOf(
                         "--mod", getModId().get(),
                         "--all",
-                        "--output", getProject().file("src/$DATA_NAME/generated").absolutePath,
-                        "--existing", getProject().file("src/$DATA_NAME/resources").absolutePath,
-                        "--existing", getProject().file("src/${SourceSet.MAIN_SOURCE_SET_NAME}/resources").absolutePath
+                        "--output", project.file("src/$DATA_NAME/generated").absolutePath,
+                        "--existing", project.file("src/$DATA_NAME/resources").absolutePath,
+                        "--existing", project.file("src/${SourceSet.MAIN_SOURCE_SET_NAME}/resources").absolutePath
                     )
                 })
 
@@ -63,13 +72,11 @@ abstract class ApexSingleExtension : BaseApexExtension {
         }
     }
 
-    fun withSourceSet(name: String, extendsMain: Boolean = true, mutator: Action<SourceSet>? = null): SourceSet {
-        return withSourceSet(name) {
-            if(extendsMain)
-                extend(getProject(), SourceSet.MAIN_SOURCE_SET_NAME)
+    fun withSourceSet(name: String, extendsMain: Boolean = true, mutator: Action<SourceSet>? = null): SourceSet = withSourceSet(name) {
+        if(extendsMain)
+            extend(getProject(), SourceSet.MAIN_SOURCE_SET_NAME)
 
-            mutator?.execute(this)
-        }
+        mutator?.execute(this)
     }
 
     @Inject

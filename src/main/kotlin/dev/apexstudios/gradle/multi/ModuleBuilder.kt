@@ -5,6 +5,7 @@ import dev.apexstudios.gradle.extension.SourceSetExtensions
 import dev.apexstudios.gradle.extension.SourceSetExtensions.extend
 import org.gradle.api.Action
 import org.gradle.api.Project
+import org.gradle.api.plugins.JavaPluginExtension
 import org.gradle.api.tasks.SourceSet
 import org.gradle.configurationcache.extensions.capitalized
 import org.gradle.plugins.ide.idea.model.IdeaModel
@@ -51,16 +52,9 @@ class ModuleBuilder {
             modules.values.forEach { setupModuleDependencies(apex, it) }
         }
 
-        private fun withSourceSet(apex: ApexExtension, name: String, mutator: Action<SourceSet>?): SourceSet = apex.withSourceSet(name) {
-            val project = apex.getProject()
-            val main = SourceSetExtensions.sourceSets(project).getByName(SourceSet.MAIN_SOURCE_SET_NAME)
-            project.tasks.getByName(main.classesTaskName).dependsOn(classesTaskName)
-            project.tasks.getByName(main.processResourcesTaskName).dependsOn(processResourcesTaskName)
-            mutator?.execute(this)
-        }
-
         private fun initializeModule(apex: ApexExtension, module: ApexModule) {
             val project = apex.getProject()
+            val javaExt = project.extensions.getByType(JavaPluginExtension::class.java)
             val mainId = module.id(SourceSet.MAIN_SOURCE_SET_NAME)
             val mainDir = module.path("src/${SourceSet.MAIN_SOURCE_SET_NAME}")
 
@@ -77,9 +71,15 @@ class ModuleBuilder {
                 }
             }
 
-            val main = withSourceSet(apex, mainId) {
+            val main = apex.withSourceSet(mainId) {
                 java.setSrcDirs(project.files("$mainDir/java"))
                 resources.setSrcDirs(project.files("$mainDir/resources"))
+            }
+
+            javaExt.registerFeature(mainId) {
+                withSourcesJar()
+                usingSourceSet(main)
+                capability(project.group as String, module.id, project.version as String)
             }
 
             apex.neoForge {
@@ -111,10 +111,16 @@ class ModuleBuilder {
 
                 main.resources.srcDir(project.file("${dataDir}/generated"))
 
-                val data = withSourceSet(apex, dataId) {
+                val data = apex.withSourceSet(dataId) {
                     java.setSrcDirs(project.files("$dataDir/java"))
                     resources.setSrcDirs(project.files("$dataDir/resources"))
                     extend(main)
+                }
+
+                javaExt.registerFeature(dataId) {
+                    usingSourceSet(data)
+                    withSourcesJar()
+                    capability(project.group as String, "${module.id}-${ApexExtension.DATA_NAME}", project.version as String)
                 }
 
                 apex.neoForge {
