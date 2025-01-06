@@ -116,7 +116,10 @@ class ModuleBuilder {
                     }
 
                     runs.create(dataId) {
-                        clientData()
+                        if(versionCapabilities.splitDataRuns())
+                            clientData()
+                        else
+                            data()
 
                         sourceSet.set(data)
                         loadedMods.set(listOf(dataMod))
