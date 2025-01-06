@@ -39,7 +39,7 @@ extensions.configure(ModDevExtension::class.java) {
             // loadedMods.convention(mods)
 
             jvmArguments.addAll(type.map {
-                if(ApexExtension.Companion.IS_CI || !it.equals("client") || !it.equals("server"))
+                if(ApexExtension.IS_CI || !(it.equals("client") || it.equals("server")))
                     return@map emptyList<String>()
 
                 return@map listOf(
