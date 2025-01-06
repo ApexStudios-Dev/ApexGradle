@@ -5,12 +5,12 @@ plugins {
     id("org.jetbrains.gradle.plugin.idea-ext")
 }
 
-val apex = ApexExtension.Companion.getOrCreate(project)
+val apex = ApexExtension.getOrCreate(project)
 
 base.archivesName = project.name.lowercase()
 
 idea.module {
-    if(!ApexExtension.Companion.IS_CI) {
+    if(!ApexExtension.IS_CI) {
         isDownloadSources = true
         isDownloadJavadoc = true
     }
