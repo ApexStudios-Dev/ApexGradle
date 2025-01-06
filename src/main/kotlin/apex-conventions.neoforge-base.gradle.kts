@@ -45,7 +45,8 @@ extensions.configure(ModDevExtension::class.java) {
                 return@map listOf(
                     "-XX:+AllowEnhancedClassRedefinition",
                     "-XX:+IgnoreUnrecognizedVMOptions",
-                    "-XX:+AllowRedefinitionToAddDeleteMethods"
+                    "-XX:+AllowRedefinitionToAddDeleteMethods",
+                    "-XX:+ClassUnloading"
                 )
             })
         }
