@@ -12,12 +12,14 @@ import org.gradle.plugins.ide.idea.model.IdeaModel
 
 class ModuleBuilder {
     private val id: String
+    private val modId: String
     private var hasData: Boolean = false
     private var dependencies: Set<String> = mutableSetOf()
     private var basePath: String? = null
 
-    constructor(id: String) {
+    constructor(id: String, modId: String) {
         this.id = id
+        this.modId = modId
     }
 
     fun hasData(): ModuleBuilder {
@@ -35,17 +37,19 @@ class ModuleBuilder {
         return this
     }
 
-    internal fun build(): ApexModule = ApexModule(id, hasData, dependencies.toSet(), basePath)
+    internal fun build(): ApexModule = ApexModule(id, modId, hasData, dependencies.toSet(), basePath)
 
     class ModulesBuilder {
         var modules: Map<String, ApexModule> = mutableMapOf()
 
-        fun module(id: String, action: Action<ModuleBuilder>? = null) {
-            val builder = ModuleBuilder(id)
+        fun module(id: String, modId: String? = null, action: Action<ModuleBuilder>? = null) {
+            val builder = ModuleBuilder(id, modId ?: id)
             action?.execute(builder)
             val module = builder.build()
             modules += Pair(id, module)
         }
+
+        fun module(id: String, action: Action<ModuleBuilder>? = null) = module(id, id, action)
 
         internal fun initialize(apex: ApexExtension) {
             modules.values.forEach { initializeModule(apex, it) }
@@ -79,7 +83,7 @@ class ModuleBuilder {
             javaExt.registerFeature(mainId) {
                 withSourcesJar()
                 usingSourceSet(main)
-                capability(project.group as String, module.id, project.version as String)
+                capability(project.group as String, module.modId, project.version as String)
             }
 
             apex.neoForge {
@@ -120,7 +124,7 @@ class ModuleBuilder {
                 javaExt.registerFeature(dataId) {
                     usingSourceSet(data)
                     withSourcesJar()
-                    capability(project.group as String, "${module.id}-${ApexExtension.DATA_NAME}", project.version as String)
+                    capability(project.group as String, "${module.modId}-${ApexExtension.DATA_NAME}", project.version as String)
                 }
 
                 apex.neoForge {
@@ -137,10 +141,10 @@ class ModuleBuilder {
 
                         sourceSet.set(data)
                         loadedMods.set(listOf(dataMod))
-                        ideName.set("${module.id.capitalized()} - Data")
+                        ideName.set("${module.modId.capitalized()} - Data")
 
                         programArguments.addAll(
-                            "--mod", module.id,
+                            "--mod", module.modId,
                             "--all",
                             "--output", project.file(module.path("src/${ApexExtension.DATA_NAME}/generated")).absolutePath,
                             "--existing", project.file(module.path("src/${ApexExtension.DATA_NAME}/resources")).absolutePath,
