@@ -51,4 +51,19 @@ extensions.configure(ModDevExtension::class.java) {
             })
         }
     }
+
+    afterEvaluate {
+        tasks.withType(Jar::class.java) {
+            manifest {
+                attributes.putAll(mutableMapOf(
+                    "Minecraft-Version" to minecraftVersion,
+                    "NeoForge-Version" to this@configure.version, // .version would point to project.version
+                ))
+
+                if(parchment.enabled.get()) {
+                    attributes.put("Parchment", "${parchment.minecraftVersion.get()}-${parchment.mappingsVersion.get()}")
+                }
+            }
+        }
+    }
 }

@@ -1,4 +1,6 @@
 import dev.apexstudios.gradle.ApexExtension
+import java.text.SimpleDateFormat
+import java.util.*
 
 plugins {
     `java-library`
@@ -29,6 +31,21 @@ java {
     }
 
     withSourcesJar()
+}
+
+tasks.withType(Jar::class.java) {
+    manifest {
+        attributes.putAll(mutableMapOf(
+            "Specification-Title" to project.name,
+            "Specification-Vendor" to "ApexStudios",
+            "Specification-Version" to "1",
+
+            "Implementation-Title" to project.name,
+            "Implementation-Vendor" to "ApexStudios",
+            "Implementation-Version" to project.version,
+            "Implementation-Timtstamp" to SimpleDateFormat("dd-MM-yyyy'T'HH:mm:ssZ").format(Date())
+        ))
+    }
 }
 
 javaToolchains.compilerFor {
