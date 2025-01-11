@@ -7,6 +7,7 @@ plugins {
 
 val apex = ApexExtension.getOrCreate(project)
 
+version = providers.environmentVariable("VERSION").getOrElse("9.9.999")
 base.archivesName = project.name.lowercase()
 
 idea.module {
