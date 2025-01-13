@@ -95,7 +95,7 @@ class ModuleBuilder {
                 }
 
                 if(ifaceFile.exists()) {
-                    interfaceInjectionData.from()
+                    interfaceInjectionData.from(ifaceFile)
                 }
 
                 val mainMod = mods.create(mainId) {
