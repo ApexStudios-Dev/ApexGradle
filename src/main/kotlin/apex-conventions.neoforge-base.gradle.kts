@@ -9,11 +9,20 @@ plugins {
 extensions.configure(ModDevExtension::class.java) {
     validateAccessTransformers.set(true)
 
-    val atFile = file("src/main/resources/META-INF/accesstransformer.cfg")
+    val atFile = file("src/${SourceSet.MAIN_SOURCE_SET_NAME}/resources/META-INF/accesstransformer.cfg")
+    val ifaceFile = project.file("src/${SourceSet.MAIN_SOURCE_SET_NAME}/resources/META-INF/interfaces.json")
 
     if(atFile.exists()) {
         accessTransformers {
             from(atFile)
+            publish(atFile)
+        }
+    }
+
+    if(ifaceFile.exists()) {
+        interfaceInjectionData {
+            from(ifaceFile)
+            publish(ifaceFile)
         }
     }
 

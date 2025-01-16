@@ -76,6 +76,7 @@ class ModuleBuilder {
             }
 
             val main = apex.withSourceSet(mainId) {
+                extend(project, SourceSet.MAIN_SOURCE_SET_NAME)
                 java.setSrcDirs(project.files("$mainDir/java"))
                 resources.setSrcDirs(project.files("$mainDir/resources"))
             }
@@ -91,11 +92,17 @@ class ModuleBuilder {
                 val ifaceFile = project.file(module.path("src/${SourceSet.MAIN_SOURCE_SET_NAME}/resources/META-INF/interfaces.json"))
 
                 if(atFile.exists()) {
-                    accessTransformers.from(atFile)
+                    accessTransformers {
+                        from(atFile)
+                        publish(atFile)
+                    }
                 }
 
                 if(ifaceFile.exists()) {
-                    interfaceInjectionData.from(ifaceFile)
+                    interfaceInjectionData {
+                        from(ifaceFile)
+                        publish(ifaceFile)
+                    }
                 }
 
                 val mainMod = mods.create(mainId) {
@@ -118,6 +125,7 @@ class ModuleBuilder {
                 val data = apex.withSourceSet(dataId) {
                     java.setSrcDirs(project.files("$dataDir/java"))
                     resources.setSrcDirs(project.files("$dataDir/resources"))
+                    extend(project, SourceSet.MAIN_SOURCE_SET_NAME)
                     extend(main)
                 }
 
