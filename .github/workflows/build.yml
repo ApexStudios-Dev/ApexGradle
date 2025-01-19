@@ -1,8 +1,0 @@
-on:
-    workflow_dispatch:
-    push:
-        paths: [ "**/src/**" ]
-
-jobs:
-    build:
-        uses: ApexStudios-Dev/.github/.github/workflows/build.yml@master
