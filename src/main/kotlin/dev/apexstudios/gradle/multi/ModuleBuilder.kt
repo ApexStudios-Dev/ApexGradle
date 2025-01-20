@@ -43,10 +43,10 @@ class ModuleBuilder {
         var modules: Map<String, ApexModule> = mutableMapOf()
 
         fun module(id: String, modId: String? = null, action: Action<ModuleBuilder>? = null) {
-            val builder = ModuleBuilder(id, modId ?: id)
+            val builder = ModuleBuilder(id, modId ?: id.lowercase())
             action?.execute(builder)
             val module = builder.build()
-            modules += Pair(id, module)
+            modules += Pair(id.lowercase(), module)
         }
 
         fun module(id: String, action: Action<ModuleBuilder>? = null) = module(id, id, action)
@@ -170,7 +170,7 @@ class ModuleBuilder {
             val moduleMainId = module.id(SourceSet.MAIN_SOURCE_SET_NAME)
             val moduleDataId = module.id(ApexExtension.DATA_NAME)
 
-            module.dependencies.mapNotNull { modules[it] }.forEach { dep ->
+            module.dependencies.mapNotNull { modules[it.lowercase()] }.forEach { dep ->
                 val depMainId = dep.id(SourceSet.MAIN_SOURCE_SET_NAME)
                 sourceSets.getByName(moduleMainId).extend(project, depMainId)
 
