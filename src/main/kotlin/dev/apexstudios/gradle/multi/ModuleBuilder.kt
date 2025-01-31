@@ -49,7 +49,7 @@ class ModuleBuilder {
             modules += Pair(id.lowercase(), module)
         }
 
-        fun module(id: String, action: Action<ModuleBuilder>? = null) = module(id, id, action)
+        fun module(id: String, action: Action<ModuleBuilder>? = null) = module(id, id.lowercase(), action)
 
         internal fun initialize(apex: ApexExtension) {
             modules.values.forEach { initializeModule(apex, it) }
