@@ -13,11 +13,11 @@ publishMods {
     modLoaders.add("neoforge")
     changelog = ""
 
-    modrinth {
-        accessToken = providers.environmentVariable("MODRINTH_TOKEN")
-        minecraftVersions.add(gameVersion)
-        announcementTitle = "Download from Modrinth"
-    }
+//    modrinth {
+//        accessToken = providers.environmentVariable("MODRINTH_TOKEN")
+//        minecraftVersions.add(gameVersion)
+//        announcementTitle = "Download from Modrinth"
+//    }
 
     curseforge {
         accessToken = providers.environmentVariable("CURSEFORGE_TOKEN")
