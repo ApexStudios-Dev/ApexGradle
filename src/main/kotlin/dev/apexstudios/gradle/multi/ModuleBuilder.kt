@@ -3,6 +3,7 @@ package dev.apexstudios.gradle.multi
 import dev.apexstudios.gradle.ApexExtension
 import dev.apexstudios.gradle.extension.SourceSetExtensions
 import dev.apexstudios.gradle.extension.SourceSetExtensions.extend
+import dev.apexstudios.gradle.single.ApexSingleExtension
 import org.gradle.api.Action
 import org.gradle.api.Project
 import org.gradle.api.plugins.JavaPluginExtension
@@ -51,7 +52,17 @@ class ModuleBuilder {
 
         fun module(id: String, action: Action<ModuleBuilder>? = null) = module(id, id.lowercase(), action)
 
-        internal fun initialize(apex: ApexExtension) {
+        internal fun initialize(single : ApexSingleExtension?, apex: ApexExtension) {
+            // stupid hack to fix modules replacing the 'loadedMods' and 'sourceSet' property
+            if(single != null) {
+                apex.neoForge {
+                    runs.configureEach {
+                        loadedMods.set(loadedMods.get())
+                        sourceSet.set(sourceSet.get())
+                    }
+                }
+            }
+
             modules.values.forEach { initializeModule(apex, it) }
             modules.values.forEach { setupModuleDependencies(apex, it) }
         }
@@ -194,7 +205,7 @@ class ModuleBuilder {
         fun modules(project: Project, action: Action<ModulesBuilder>) {
             var builder = ModulesBuilder()
             action.execute(builder)
-            builder.initialize(ApexExtension.getOrCreate(project))
+            builder.initialize(project.extensions.findByType(ApexSingleExtension::class.java), ApexExtension.getOrCreate(project))
         }
     }
 }
