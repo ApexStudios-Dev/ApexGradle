@@ -118,3 +118,12 @@ publishing {
         }
     }
 }
+
+// artifact must be lowercase for github packages
+// unsure why its not already, the 'base.archiveName' is set to 'apexgradle'
+// but publishing is generating as 'ApexGradle'
+afterEvaluate {
+    publishing.publications.withType(MavenPublication::class.java).forEach {
+        it.artifactId = it.artifactId.lowercase()
+    }
+}
