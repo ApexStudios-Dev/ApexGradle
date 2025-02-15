@@ -8,7 +8,7 @@ plugins {
 }
 
 val IS_CI = providers.environmentVariable("CI").map(String::toBoolean).getOrElse(false)
-val MAVEN_USER = providers.environmentVariable("MAVEN_USER")
+val MAVEN_USERNAME = providers.environmentVariable("MAVEN_USERNAME")
 val MAVEN_PASSWORD = providers.environmentVariable("MAVEN_PASSWORD")
 val GITHUB_ACTOR = providers.gradleProperty("gpr.user").orElse(providers.environmentVariable("GITHUB_ACTOR"))
 val GITHUB_TOKEN = providers.gradleProperty("gpr.token").orElse(providers.environmentVariable("GITHUB_TOKEN"))
@@ -88,12 +88,12 @@ immaculate {
 
 publishing {
     repositories {
-        if(MAVEN_USER.isPresent && MAVEN_PASSWORD.isPresent) {
+        if(MAVEN_USERNAME.isPresent && MAVEN_PASSWORD.isPresent) {
             maven("https://maven.apexstudios.dev/releases") {
                 name = "ApexStudios-Releases"
 
                 credentials {
-                    username = MAVEN_USER.get()
+                    username = MAVEN_USERNAME.get()
                     password = MAVEN_PASSWORD.get()
                 }
 
