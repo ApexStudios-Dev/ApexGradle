@@ -33,17 +33,6 @@ publishing {
             }
         }
 
-        if(ApexExtension.GITHUB_ACTOR != null && ApexExtension.GITHUB_TOKEN != null && ApexExtension.GITHUB_PACKAGE_URL != null) {
-            maven(ApexExtension.GITHUB_PACKAGE_URL) {
-                name = "ApexStudios-GitHub-Packages"
-
-                credentials {
-                    username = ApexExtension.GITHUB_ACTOR
-                    password = ApexExtension.GITHUB_TOKEN
-                }
-            }
-        }
-
         if(!ApexExtension.IS_CI)  {
             maven { url = uri(layout.buildDirectory.dir("mavenLocal")) }
             // mavenLocal()

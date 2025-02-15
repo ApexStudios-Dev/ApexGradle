@@ -3,14 +3,10 @@ package dev.apexstudios.gradle
 import dev.apexstudios.gradle.extension.SourceSetExtensions
 import org.gradle.api.Action
 import org.gradle.api.Project
-import org.gradle.api.artifacts.dsl.RepositoryHandler
-import org.gradle.api.artifacts.repositories.MavenArtifactRepository
 import org.gradle.api.provider.Property
 import org.gradle.api.tasks.SourceSet
 import org.gradle.api.tasks.compile.JavaCompile
-import org.gradle.internal.impldep.org.apache.http.client.ResponseHandler
 import org.gradle.jvm.toolchain.JvmVendorSpec
-import org.gradle.kotlin.dsl.maven
 import javax.inject.Inject
 
 abstract class ApexExtension : BaseApexExtension {
@@ -52,9 +48,6 @@ abstract class ApexExtension : BaseApexExtension {
     companion object {
         const val DATA_NAME = "data"
         val IS_CI = System.getenv("IS_CI").toBoolean()
-        val GITHUB_ACTOR = System.getProperty("gpr.user") ?: System.getenv("GITHUB_ACTOR")
-        val GITHUB_TOKEN = System.getProperty("gpr.token") ?: System.getenv("GITHUB_TOKEN")
-        val GITHUB_PACKAGE_URL = System.getenv("GITHUB_PACKAGE_URL")
 
         fun getOrCreate(project: Project): ApexExtension {
             var extension = project.extensions.findByType(ApexExtension::class.java)
@@ -63,27 +56,6 @@ abstract class ApexExtension : BaseApexExtension {
                 extension = project.extensions.create("apex", ApexExtension::class.java)
 
             return extension
-        }
-
-        fun githubPackageUrl(user: String, repo: String): String = "https://maven.pkg.github.com/$user/$repo"
-
-        fun withGithubMaven(repositories: RepositoryHandler, user: String, repo: String, action: Action<MavenArtifactRepository> = Action { }) {
-            if(GITHUB_ACTOR != null && GITHUB_TOKEN != null) {
-                repositories.maven(githubPackageUrl(user, repo)) {
-                    action.execute(this)
-
-                    credentials {
-                        username = GITHUB_ACTOR
-                        password = GITHUB_TOKEN
-                    }
-                }
-            }
-        }
-
-        fun withApexStudiosGithubMaven(repositories: RepositoryHandler, repo: String) = withGithubMaven(repositories, "ApexStudios-Dev", repo) {
-            content {
-                includeGroup("dev.apexstudios")
-            }
         }
     }
 }

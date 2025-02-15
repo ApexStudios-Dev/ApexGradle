@@ -10,8 +10,6 @@ plugins {
 val IS_CI = providers.environmentVariable("CI").map(String::toBoolean).getOrElse(false)
 val MAVEN_USERNAME = providers.environmentVariable("MAVEN_USERNAME")
 val MAVEN_PASSWORD = providers.environmentVariable("MAVEN_PASSWORD")
-val GITHUB_ACTOR = providers.gradleProperty("gpr.user").orElse(providers.environmentVariable("GITHUB_ACTOR"))
-val GITHUB_TOKEN = providers.gradleProperty("gpr.token").orElse(providers.environmentVariable("GITHUB_TOKEN"))
 
 group = "dev.apexstudios"
 version = providers.environmentVariable("VERSION").getOrElse("9.9.999")
@@ -101,29 +99,9 @@ publishing {
             }
         }
 
-        if(GITHUB_ACTOR.isPresent && GITHUB_TOKEN.isPresent) {
-            maven("https://maven.pkg.github.com/ApexStudios-Dev/ApexGradle") {
-                name = "ApexStudios-GitHub-Packages"
-
-                credentials {
-                    username = GITHUB_ACTOR.get()
-                    password = GITHUB_TOKEN.get()
-                }
-            }
-        }
-
         if(!IS_CI)  {
             maven { url = uri(layout.buildDirectory.dir("mavenLocal")) }
             // mavenLocal()
         }
-    }
-}
-
-// artifact must be lowercase for github packages
-// unsure why its not already, the 'base.archiveName' is set to 'apexgradle'
-// but publishing is generating as 'ApexGradle'
-afterEvaluate {
-    publishing.publications.withType(MavenPublication::class.java).forEach {
-        it.artifactId = it.artifactId.lowercase()
     }
 }
