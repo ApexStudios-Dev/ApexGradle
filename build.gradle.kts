@@ -14,8 +14,7 @@ val GITHUB_ACTOR = providers.gradleProperty("gpr.user").orElse(providers.environ
 val GITHUB_TOKEN = providers.gradleProperty("gpr.token").orElse(providers.environmentVariable("GITHUB_TOKEN"))
 
 group = "dev.apexstudios"
-//version = providers.environmentVariable("VERSION").getOrElse("9.9.999")
-version = "0.1-SNAPSHOT"
+version = providers.environmentVariable("VERSION").getOrElse("9.9.999")
 base.archivesName = "apexgradle"
 println("ApexGradle: $version")
 

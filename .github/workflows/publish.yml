@@ -6,7 +6,7 @@ on:
 
 jobs:
     publish:
-        uses: ApexStudios-Dev/.github/.github/workflows/publish.yml@master
+        uses: ApexStudios-Dev/.github/.github/workflows/publish-snapshot.yml@master
         secrets: inherit
         with:
             github_package_url: "https://maven.pkg.github.com/ApexStudios-Dev/ApexGradle"
