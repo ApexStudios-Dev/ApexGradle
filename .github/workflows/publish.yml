@@ -7,6 +7,4 @@ on:
 jobs:
     publish:
         uses: ApexStudios-Dev/.github/.github/workflows/publish.yml@master
-        secrets:
-            MAVEN_USERNAME: ${{ secrets.MAVEN_USERNAME }}
-            MAVEN_PASSWORD: ${{ secrets.MAVEN_PASSWORD }}
+        secrets: inherit

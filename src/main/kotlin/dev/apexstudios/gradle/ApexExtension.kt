@@ -48,6 +48,8 @@ abstract class ApexExtension : BaseApexExtension {
     companion object {
         const val DATA_NAME = "data"
         val IS_CI = System.getenv("IS_CI").toBoolean()
+        val GITHUB_ACTOR = System.getProperty("gpr.user") ?: System.getenv("GITHUB_ACTOR")
+        val GITHUB_TOKEN = System.getProperty("gpr.token") ?: System.getenv("GITHUB_TOKEN")
 
         fun getOrCreate(project: Project): ApexExtension {
             var extension = project.extensions.findByType(ApexExtension::class.java)

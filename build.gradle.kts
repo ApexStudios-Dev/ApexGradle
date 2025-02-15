@@ -7,7 +7,11 @@ plugins {
     alias(libs.plugins.immaculate)
 }
 
-val IS_CI = System.getenv("CI").toBoolean()
+val IS_CI = providers.environmentVariable("CI").map(String::toBoolean).getOrElse(false)
+val MAVEN_USER = providers.environmentVariable("MAVEN_USER")
+val MAVEN_PASSWORD = providers.environmentVariable("MAVEN_PASSWORD")
+val GITHUB_ACTOR = providers.gradleProperty("gpr.user").orElse(providers.environmentVariable("GITHUB_ACTOR"))
+val GITHUB_TOKEN = providers.gradleProperty("gpr.token").orElse(providers.environmentVariable("GITHUB_TOKEN"))
 
 group = "dev.apexstudios"
 version = providers.environmentVariable("VERSION").getOrElse("9.9.999")
@@ -84,18 +88,31 @@ immaculate {
 
 publishing {
     repositories {
-        if(System.getenv("MAVEN_USERNAME") != null && System.getenv("MAVEN_PASSWORD") != null) {
+        if(MAVEN_USER.isPresent && MAVEN_PASSWORD.isPresent) {
             maven("https://maven.apexstudios.dev/releases") {
                 name = "ApexStudios-Releases"
 
                 credentials {
-                    username = System.getenv("MAVEN_USERNAME")
-                    password = System.getenv("MAVEN_PASSWORD")
+                    username = MAVEN_USER.get()
+                    password = MAVEN_PASSWORD.get()
                 }
 
                 authentication.create<BasicAuthentication>("basic")
             }
-        } else {
+        }
+
+        if(GITHUB_ACTOR.isPresent && GITHUB_TOKEN.isPresent) {
+            maven("https://maven.pkg.github.com/ApexStudios-Dev/ApexGradle") {
+                name = "ApexStudios-GitHub-Packages"
+
+                credentials {
+                    username = GITHUB_ACTOR.get()
+                    password = GITHUB_TOKEN.get()
+                }
+            }
+        }
+
+        if(!IS_CI)  {
             maven { url = uri(layout.buildDirectory.dir("mavenLocal")) }
             // mavenLocal()
         }

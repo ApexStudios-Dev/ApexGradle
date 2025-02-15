@@ -62,4 +62,17 @@ repositories {
             includeGroup("dev.apexstudios")
         }
     }
+
+    if(ApexExtension.GITHUB_ACTOR != null && ApexExtension.GITHUB_TOKEN != null) {
+        maven("https://maven.pkg.github.com/ApexStudios-Dev/Issues") {
+            content {
+                includeGroup("dev.apexstudios")
+            }
+
+            credentials {
+                username = ApexExtension.GITHUB_ACTOR
+                password = ApexExtension.GITHUB_TOKEN
+            }
+        }
+    }
 }

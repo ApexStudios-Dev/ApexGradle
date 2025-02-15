@@ -1,3 +1,4 @@
+import dev.apexstudios.gradle.ApexExtension
 import dev.apexstudios.gradle.single.ApexSingleExtension
 
 plugins {
@@ -30,7 +31,20 @@ publishing {
 
                 authentication.create<BasicAuthentication>("basic")
             }
-        } else {
+        }
+
+        if(ApexExtension.GITHUB_ACTOR != null && ApexExtension.GITHUB_TOKEN != null) {
+            maven("https://maven.pkg.github.com/ApexStudios-Dev/Issues") {
+                name = "ApexStudios-GitHub-Packages"
+
+                credentials {
+                    username = ApexExtension.GITHUB_ACTOR
+                    password = ApexExtension.GITHUB_TOKEN
+                }
+            }
+        }
+
+        if(!ApexExtension.IS_CI)  {
             maven { url = uri(layout.buildDirectory.dir("mavenLocal")) }
             // mavenLocal()
         }
