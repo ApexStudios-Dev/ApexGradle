@@ -33,8 +33,8 @@ publishing {
             }
         }
 
-        if(ApexExtension.GITHUB_ACTOR != null && ApexExtension.GITHUB_TOKEN != null) {
-            maven("https://maven.pkg.github.com/ApexStudios-Dev/Issues") {
+        if(ApexExtension.GITHUB_ACTOR != null && ApexExtension.GITHUB_TOKEN != null && ApexExtension.GITHUB_PACKAGE_URL != null) {
+            maven(ApexExtension.GITHUB_PACKAGE_URL) {
                 name = "ApexStudios-GitHub-Packages"
 
                 credentials {
