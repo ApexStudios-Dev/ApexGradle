@@ -35,6 +35,8 @@ abstract class ApexExtension : BaseApexExtension {
             project.tasks.findByName(main.sourcesJarTaskName)?.dependsOn(sourcesJarTaskName)
         }
 
+        resources.exclude("**/*.bbmodel")
+
         neoForge { addModdingDependenciesTo(this@create) }
 
         mutator?.execute(this)

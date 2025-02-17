@@ -25,6 +25,10 @@ idea.module {
     ))
 }
 
+sourceSets.main {
+    resources.exclude("**/*.bbmodel")
+}
+
 java {
     toolchain {
         vendor.set(apex.getJavaVendor())
