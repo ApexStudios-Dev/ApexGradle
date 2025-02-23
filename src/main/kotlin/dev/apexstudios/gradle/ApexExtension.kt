@@ -1,7 +1,6 @@
 package dev.apexstudios.gradle
 
 import dev.apexstudios.gradle.extension.SourceSetExtensions
-import gradle.kotlin.dsl.accessors._0e18aa1a680bea7494b0157fa79d10c4.archives
 import org.gradle.api.Action
 import org.gradle.api.Project
 import org.gradle.api.provider.Property
@@ -41,8 +40,8 @@ abstract class ApexExtension @Inject constructor(project: Project) : BaseApexExt
             }
 
             project.artifacts {
-                archives(jarTask)
-                archives(sourcesJar)
+                add("archives", jarTask)
+                add("archives", sourcesJar)
             }
 
             project.tasks.findByName("compileJava")?.finalizedBy(compileJavaTaskName)

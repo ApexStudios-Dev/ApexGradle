@@ -9,7 +9,6 @@ import net.neoforged.moddevgradle.dsl.RunModel
 import org.gradle.api.Action
 import org.gradle.api.GradleException
 import org.gradle.api.Project
-import org.gradle.api.plugins.JavaPluginExtension
 import org.gradle.api.provider.Property
 import org.gradle.api.tasks.SourceSet
 import org.gradle.jvm.toolchain.JvmVendorSpec
