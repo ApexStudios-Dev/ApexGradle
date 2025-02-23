@@ -15,8 +15,6 @@ dependencyResolutionManagement {
         version("immaculate", "0.1.6")
         library("immaculate", "dev.lukebemish.immaculate", "dev.lukebemish.immaculate.gradle.plugin").versionRef("immaculate")
         plugin("immaculate", "dev.lukebemish.immaculate").versionRef("immaculate")
-
-        library("modpublish", "me.modmuss50.mod-publish-plugin", "me.modmuss50.mod-publish-plugin.gradle.plugin").version("0.8.4")
     }
 }
 
