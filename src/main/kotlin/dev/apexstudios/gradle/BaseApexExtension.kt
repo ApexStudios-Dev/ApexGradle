@@ -4,6 +4,7 @@ import net.neoforged.moddevgradle.dsl.NeoForgeExtension
 import org.gradle.api.Action
 import org.gradle.api.Project
 import org.gradle.api.provider.Property
+import org.gradle.api.publish.PublishingExtension
 import org.gradle.api.tasks.SourceSet
 import org.gradle.jvm.toolchain.JvmVendorSpec
 import javax.inject.Inject
@@ -54,5 +55,14 @@ abstract class BaseApexExtension {
     fun neoVersion(loaderVersion: String, parchmentMappings: String?) = neoVersion(loaderVersion, null, parchmentMappings)
     fun neoVersion(loaderVersion: String) = neoVersion(loaderVersion, null, null)
 
-    fun neoForge(action: Action<NeoForgeExtension>) = getProject().extensions.configure(NeoForgeExtension::class.java, action)
+    fun neoForge(action: Action<NeoForgeExtension>) = configureExtension(NeoForgeExtension::class.java, action)
+    fun publishing(action: Action<PublishingExtension>) = configureExtension(PublishingExtension::class.java, action)
+
+    fun <TExtension> configureExtension(extensionType: Class<TExtension>, action: Action<TExtension>) {
+        val extension = getProject().extensions.findByType(extensionType)
+
+        if(extension != null) {
+            action.execute(extension)
+        }
+    }
 }

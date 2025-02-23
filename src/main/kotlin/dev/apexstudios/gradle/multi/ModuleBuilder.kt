@@ -6,22 +6,15 @@ import dev.apexstudios.gradle.extension.SourceSetExtensions.extend
 import dev.apexstudios.gradle.single.ApexSingleExtension
 import org.gradle.api.Action
 import org.gradle.api.Project
-import org.gradle.api.plugins.JavaPluginExtension
+import org.gradle.api.publish.maven.MavenPublication
 import org.gradle.api.tasks.SourceSet
 import org.gradle.configurationcache.extensions.capitalized
 import org.gradle.plugins.ide.idea.model.IdeaModel
 
-class ModuleBuilder {
-    private val id: String
-    private val modId: String
+class ModuleBuilder(private val id: String, private val modId: String) {
     private var hasData: Boolean = false
     private var dependencies: Set<String> = mutableSetOf()
     private var basePath: String? = null
-
-    constructor(id: String, modId: String) {
-        this.id = id
-        this.modId = modId
-    }
 
     fun hasData(): ModuleBuilder {
         hasData = true
@@ -41,7 +34,7 @@ class ModuleBuilder {
     internal fun build(): ApexModule = ApexModule(id, modId, hasData, dependencies.toSet(), basePath)
 
     class ModulesBuilder {
-        var modules: Map<String, ApexModule> = mutableMapOf()
+        private var modules: Map<String, ApexModule> = mutableMapOf()
 
         fun module(id: String, modId: String? = null, action: Action<ModuleBuilder>? = null) {
             val builder = ModuleBuilder(id, modId ?: id.lowercase())
@@ -69,7 +62,6 @@ class ModuleBuilder {
 
         private fun initializeModule(apex: ApexExtension, module: ApexModule) {
             val project = apex.getProject()
-            val javaExt = project.extensions.getByType(JavaPluginExtension::class.java)
             val mainId = module.id(SourceSet.MAIN_SOURCE_SET_NAME)
             val mainDir = module.path("src/${SourceSet.MAIN_SOURCE_SET_NAME}")
 
@@ -90,12 +82,6 @@ class ModuleBuilder {
                 extend(project, SourceSet.MAIN_SOURCE_SET_NAME)
                 java.setSrcDirs(project.files("$mainDir/java"))
                 resources.setSrcDirs(project.files("$mainDir/resources"))
-            }
-
-            javaExt.registerFeature(mainId) {
-                withSourcesJar()
-                usingSourceSet(main)
-                capability(project.group as String, module.modId, project.version as String)
             }
 
             apex.neoForge {
@@ -127,6 +113,22 @@ class ModuleBuilder {
                 }
             }
 
+            apex.publishing {
+                publications.create("${module.id}Release", MavenPublication::class.java) {
+                    project.afterEvaluate {
+                        val single = project.extensions.findByType(ApexSingleExtension::class.java)
+                        val publishName = single?.getModId()?.get() ?: project.name.lowercase()
+
+                        groupId = project.group as String
+                        artifactId = "${publishName}-${module.id}"
+                        version = project.version as String
+                    }
+
+                    artifact(project.tasks.named(main.jarTaskName))
+                    artifact(project.tasks.named(main.sourcesJarTaskName))
+                }
+            }
+
             if(module.hasData) {
                 val dataId = module.id(ApexExtension.DATA_NAME)
                 val dataDir = module.path("src/${ApexExtension.DATA_NAME}")
@@ -138,12 +140,6 @@ class ModuleBuilder {
                     resources.setSrcDirs(project.files("$dataDir/resources"))
                     extend(project, SourceSet.MAIN_SOURCE_SET_NAME)
                     extend(main)
-                }
-
-                javaExt.registerFeature(dataId) {
-                    usingSourceSet(data)
-                    withSourcesJar()
-                    capability(project.group as String, "${module.modId}-${ApexExtension.DATA_NAME}", project.version as String)
                 }
 
                 apex.neoForge {
@@ -203,7 +199,7 @@ class ModuleBuilder {
 
     companion object {
         fun modules(project: Project, action: Action<ModulesBuilder>) {
-            var builder = ModulesBuilder()
+            val builder = ModulesBuilder()
             action.execute(builder)
             builder.initialize(project.extensions.findByType(ApexSingleExtension::class.java), ApexExtension.getOrCreate(project))
         }

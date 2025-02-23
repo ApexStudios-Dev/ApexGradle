@@ -6,7 +6,7 @@ plugins {
 }
 
 val single = project.extensions.findByType(ApexSingleExtension::class.java)
-val publishName = (single?.getModId() ?: project.name.lowercase()) as String
+val publishName = single?.getModId()?.get() ?: project.name.lowercase()
 
 publishing {
     publications.create("release", MavenPublication::class.java) {

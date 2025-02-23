@@ -1,15 +1,17 @@
 package dev.apexstudios.gradle
 
 import dev.apexstudios.gradle.extension.SourceSetExtensions
+import gradle.kotlin.dsl.accessors._0e18aa1a680bea7494b0157fa79d10c4.archives
 import org.gradle.api.Action
 import org.gradle.api.Project
 import org.gradle.api.provider.Property
 import org.gradle.api.tasks.SourceSet
+import org.gradle.api.tasks.bundling.Jar
 import org.gradle.api.tasks.compile.JavaCompile
 import org.gradle.jvm.toolchain.JvmVendorSpec
 import javax.inject.Inject
 
-abstract class ApexExtension : BaseApexExtension {
+abstract class ApexExtension @Inject constructor(project: Project) : BaseApexExtension() {
     abstract override fun getJavaVendor(): Property<JvmVendorSpec>
 
     override fun extendCompilerErrors(extendWarnings: Boolean) {
@@ -25,25 +27,41 @@ abstract class ApexExtension : BaseApexExtension {
     override fun withSourceSet(name: String, mutator: Action<SourceSet>?): SourceSet = SourceSetExtensions.sourceSets(getProject()).create(name) {
         if(name != SourceSet.MAIN_SOURCE_SET_NAME) {
             val project = getProject()
+            val main = SourceSetExtensions.sourceSets(project).getByName(SourceSet.MAIN_SOURCE_SET_NAME)
+
+            val jarTask = project.tasks.register(jarTaskName, Jar::class.java) {
+                archiveBaseName.set(project.provider { "${project.name.lowercase()}-$name" })
+                from(output)
+            }
+
+            val sourcesJar = project.tasks.register(sourcesJarTaskName, Jar::class.java) {
+                archiveClassifier.set("sources")
+                archiveBaseName.set(project.provider { "${project.name.lowercase()}-$name" })
+                from(allSource)
+            }
+
+            project.artifacts {
+                archives(jarTask)
+                archives(sourcesJar)
+            }
+
             project.tasks.findByName("compileJava")?.finalizedBy(compileJavaTaskName)
             project.tasks.findByName("classes")?.finalizedBy(classesTaskName)
-            project.tasks.findByName("javadoc")?.finalizedBy(javadocTaskName)
+            // project.tasks.findByName("javadoc")?.finalizedBy(javadocTaskName)
             project.tasks.findByName("processResources")?.finalizedBy(processResourcesTaskName)
-            val main = SourceSetExtensions.sourceSets(project).getByName(SourceSet.MAIN_SOURCE_SET_NAME)
-            project.tasks.findByName(main.jarTaskName)?.dependsOn(jarTaskName)
-            project.tasks.findByName(main.javadocJarTaskName)?.dependsOn(javadocJarTaskName)
-            project.tasks.findByName(main.sourcesJarTaskName)?.dependsOn(sourcesJarTaskName)
+            project.tasks.findByName(main.jarTaskName)?.dependsOn(jarTask)
+            // project.tasks.findByName(main.javadocJarTaskName)?.dependsOn(javadocJarTaskName)
+            project.tasks.findByName(main.sourcesJarTaskName)?.dependsOn(sourcesJar)
         }
 
-        resources.exclude("**/*.bbmodel")
+        resources.exclude(".cache", "**/*.bbmodel")
 
         neoForge { addModdingDependenciesTo(this@create) }
 
         mutator?.execute(this)
     }
 
-    @Inject
-    constructor(project: Project) {
+    init {
         getJavaVendor().convention(project.provider { if(IS_CI) JvmVendorSpec.ADOPTIUM else JvmVendorSpec.JETBRAINS })
     }
 

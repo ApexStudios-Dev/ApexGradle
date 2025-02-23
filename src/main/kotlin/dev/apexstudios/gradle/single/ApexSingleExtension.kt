@@ -24,7 +24,6 @@ abstract class ApexSingleExtension : BaseApexExtension {
 
     fun withDataGen(runMutator: Action<RunModel>? = null) {
         val project = getProject()
-        val javaExt = project.extensions.getByType(JavaPluginExtension::class.java)
         val mainSource = SourceSetExtensions.sourceSets(project).getByName(SourceSet.MAIN_SOURCE_SET_NAME) {
             resources {
                 exclude(".cache")
@@ -33,12 +32,6 @@ abstract class ApexSingleExtension : BaseApexExtension {
         }
 
         val dataSource = withSourceSet(DATA_NAME, true)
-
-        javaExt.registerFeature(DATA_NAME) {
-            usingSourceSet(dataSource)
-            withSourcesJar()
-            capability(project.group as String, DATA_NAME, project.version as String)
-        }
 
         neoForge {
             addModdingDependenciesTo(dataSource)
