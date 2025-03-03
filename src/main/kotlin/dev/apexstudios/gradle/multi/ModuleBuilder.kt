@@ -155,7 +155,7 @@ class ModuleBuilder(private val id: String, private val modId: String) {
                             data()
 
                         sourceSet.set(data)
-                        loadedMods.set(listOf(dataMod))
+                        loadedMods.add(dataMod)
                         ideName.set("${module.modId.capitalized()} - Data")
 
                         programArguments.addAll(
