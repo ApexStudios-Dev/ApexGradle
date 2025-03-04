@@ -1,0 +1,14 @@
+name: Build PR
+
+on:
+    pull_request:
+        types:
+            - synchronize
+            - opened
+            - ready_for_review
+            - reopened
+
+jobs:
+    build-pr:
+        name: Build PR
+        uses: ApexStudios-Dev/.github/.github/workflows/build-pr.yml@master
