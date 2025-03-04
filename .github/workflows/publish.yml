@@ -13,7 +13,6 @@ jobs:
         steps:
             - name: Checkout Repository
               uses: ApexStudios-Dev/.github/actions/checkout@master
-              id: checkout
 
             - name: Setup Java
               uses: ApexStudios-Dev/.github/actions/setup-java@master
@@ -25,6 +24,6 @@ jobs:
                   setup: true
                   tasks: :publish
               env:
-                  VERSION: ${{ steps.checkout.outputs.version }}
+                  VERSION: 0.1-SNAPSHOT
                   MAVEN_USERNAME: ${{ secrets.MAVEN_USERNAME }}
                   MAVEN_PASSWORD: ${{ secrets.MAVEN_PASSWORD }}
