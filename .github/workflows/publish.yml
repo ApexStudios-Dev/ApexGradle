@@ -17,12 +17,13 @@ jobs:
             - name: Setup Java
               uses: ApexStudios-Dev/.github/actions/setup-java@master
 
+            - name: Setup Gradle
+              uses: ApexStudios-Dev/.github/actions/setup-gradle@master
+
             - name: Build with Gradle
-              uses: ApexStudios-Dev/.github/actions/run-gradle@master
               if: ${{ !env.ACT }}
-              with:
-                  setup: true
-                  tasks: :publish
+              shell: bash
+              run: ./gradlew :publish
               env:
                   VERSION: 0.1-SNAPSHOT
                   MAVEN_USERNAME: ${{ secrets.MAVEN_USERNAME }}
