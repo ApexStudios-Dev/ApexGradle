@@ -148,6 +148,8 @@ class ModuleBuilder(private val id: String, private val modId: String) {
                         sourceSet(data)
                     }
 
+                    val singleData = mods.findByName(ApexExtension.DATA_NAME) ?: mods.getByName(SourceSet.MAIN_SOURCE_SET_NAME)
+
                     runs.create(dataId) {
                         if(versionCapabilities.splitDataRuns())
                             clientData()
@@ -155,7 +157,7 @@ class ModuleBuilder(private val id: String, private val modId: String) {
                             data()
 
                         sourceSet.set(data)
-                        loadedMods.add(dataMod)
+                        loadedMods.set(listOf(singleData, dataMod))
                         ideName.set("${module.modId.capitalized()} - Data")
 
                         programArguments.addAll(
