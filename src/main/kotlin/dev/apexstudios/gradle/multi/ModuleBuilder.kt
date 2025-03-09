@@ -149,6 +149,7 @@ class ModuleBuilder(private val id: String, private val modId: String) {
                     }
 
                     val singleData = mods.findByName(ApexExtension.DATA_NAME) ?: mods.getByName(SourceSet.MAIN_SOURCE_SET_NAME)
+                    val singleExists = singleData.run { this.modSourceSets.map { it.any { it.allSource.any { it.exists() } } } }.getOrElse(false)
 
                     runs.create(dataId) {
                         if(versionCapabilities.splitDataRuns())
@@ -157,7 +158,12 @@ class ModuleBuilder(private val id: String, private val modId: String) {
                             data()
 
                         sourceSet.set(data)
-                        loadedMods.add(dataMod)
+
+                        if(singleExists)
+                            loadedMods.set(listOf(singleData, dataMod))
+                        else
+                            loadedMods.set(listOf(dataMod))
+
                         ideName.set("${module.modId.capitalized()} - Data")
 
                         programArguments.addAll(
