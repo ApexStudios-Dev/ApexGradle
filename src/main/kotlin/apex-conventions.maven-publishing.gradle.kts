@@ -31,6 +31,17 @@ publishing {
 
                 authentication.create<BasicAuthentication>("basic")
             }
+
+            maven("https://maven.apexstudios.dev/private") {
+                name = "ApexStudios-Private"
+
+                credentials {
+                    username = System.getenv("MAVEN_USERNAME")
+                    password = System.getenv("MAVEN_PASSWORD")
+                }
+
+                authentication.create<BasicAuthentication>("basic")
+            }
         }
 
         if(!ApexExtension.IS_CI)  {
