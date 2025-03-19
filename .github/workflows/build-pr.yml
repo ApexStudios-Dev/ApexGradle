@@ -12,3 +12,4 @@ jobs:
     build-pr:
         name: Build PR
         uses: ApexStudios-Dev/.github/.github/workflows/build-pr.yml@master
+        secrets: inherit
