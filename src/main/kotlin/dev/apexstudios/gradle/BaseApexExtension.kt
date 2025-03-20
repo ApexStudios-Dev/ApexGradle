@@ -19,7 +19,7 @@ abstract class BaseApexExtension {
         // <major>.<minor>[-beta][-pr-#-<branch>]
         val tokens = loaderVersion.split("-", limit = 3)
 
-        if(tokens.size >= 3) {
+        if(tokens.size >= 3 && tokens[2].contains("-")) {
             val prNum = tokens[2].split("-")[1]
 
             getProject().repositories.maven {
