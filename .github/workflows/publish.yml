@@ -12,6 +12,7 @@ jobs:
         runs-on: apexstudios
         steps:
             - name: Checkout Repository
+              id: checkout
               uses: ApexStudios-Dev/.github/actions/checkout@master
 
             - name: Setup Java
@@ -22,8 +23,8 @@ jobs:
 
             - name: Build with Gradle
               if: ${{ !env.ACT }}
-              run: ./gradlew :publish
+              run: ./gradlew :publishAllPublicationsToApexStudios-ReleasesRepository
               env:
-                  VERSION: 0.1-SNAPSHOT
+                  VERSION: ${{ steps.checkout.outputs.version }}
                   MAVEN_USERNAME: ${{ secrets.MAVEN_USERNAME }}
                   MAVEN_PASSWORD: ${{ secrets.MAVEN_PASSWORD }}

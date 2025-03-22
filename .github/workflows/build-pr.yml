@@ -11,5 +11,21 @@ on:
 jobs:
     build-pr:
         name: Build PR
-        uses: ApexStudios-Dev/.github/.github/workflows/build-pr.yml@master
-        secrets: inherit
+        runs-on: apexstudios
+        steps:
+            - name: Checkout Repository
+              id: checkout
+              uses: ApexStudios-Dev/.github/actions/checkout@master
+
+            - name: Setup Java
+              uses: ApexStudios-Dev/.github/actions/setup-java@master
+
+            - name: Setup Gradle
+              uses: ApexStudios-Dev/.github/actions/setup-gradle@master
+
+            - name: Build with Gradle
+              run: ./gradlew :publishAllPublicationsToApexStudios-PrivateRepository
+              env:
+                  VERSION: ${{ steps.checkout.outputs.version }}
+                  MAVEN_USERNAME: ${{ secrets.MAVEN_USERNAME }}
+                  MAVEN_PASSWORD: ${{ secrets.MAVEN_PASSWORD }}
