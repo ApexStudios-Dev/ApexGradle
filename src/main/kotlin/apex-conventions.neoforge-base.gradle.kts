@@ -46,6 +46,7 @@ extensions.configure(ModDevExtension::class.java) {
             gameDirectory.set(type.map { layout.projectDirectory.dir("run/$it") })
             // sourceSet.convention(sourceSets[SourceSet.MAIN_SOURCE_SET_NAME])
             // loadedMods.convention(mods)
+            systemProperty("terminal.ansi", "true") // fix terminal not having colors
 
             jvmArguments.addAll(type.map {
                 if(ApexExtension.IS_CI || !(it.equals("client") || it.equals("server")))
