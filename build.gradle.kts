@@ -16,6 +16,8 @@ version = providers.environmentVariable("VERSION").getOrElse("9.9.999")
 base.archivesName = "apexgradle"
 println("ApexGradle: $version")
 
+println("testing")
+
 idea.module {
     if(!IS_CI) {
         isDownloadSources = true
