@@ -7,24 +7,18 @@ on:
     paths: [ "**/src/**" ]
 
 jobs:
-  publish-maven:
-    name: Publish to Maven
-    runs-on: apexstudios
-    steps:
-      - name: Checkout Repository
-        id: checkout
-        uses: ApexStudios-Dev/.github/actions/checkout@master
+  generate-vars:
+    name: Generate Vars
+    uses: ApexStudios-Dev/.github/.github/workflows/_generate-vars.yml@master
+    secrets: inherit
 
-      - name: Setup Java
-        uses: ApexStudios-Dev/.github/actions/setup-java@master
-
-      - name: Setup Gradle
-        uses: ApexStudios-Dev/.github/actions/setup-gradle@master
-
-      - name: Build with Gradle
-        if: ${{ !env.ACT }}
-        run: ./gradlew :publishAllPublicationsToApexStudios-ReleasesRepository
-        env:
-          VERSION: ${{ steps.checkout.outputs.version }}
-          MAVEN_USERNAME: ${{ secrets.MAVEN_USERNAME }}
-          MAVEN_PASSWORD: ${{ secrets.MAVEN_PASSWORD }}
+  publish:
+    name: Publish
+    uses: ApexStudios-Dev/.github/.github/workflows/_publish-maven.yml@master
+    needs: generate-vars
+    secrets: inherit
+    with:
+      java-version: 21
+      java-vendor: temurin
+      version: ${{ needs.generate-vars.outputs.version }}
+      publish-task: ':publishAllPublicationsToApexStudios-ReleasesRepository'
