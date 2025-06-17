@@ -52,10 +52,6 @@ tasks.withType(Jar::class.java) {
     }
 }
 
-javaToolchains.compilerFor {
-    vendor.set(apex.getJavaVendor())
-}
-
 tasks.withType<JavaCompile> {
     options.encoding = "UTF-8"
 }

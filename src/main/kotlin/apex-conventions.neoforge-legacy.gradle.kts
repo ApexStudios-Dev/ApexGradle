@@ -8,6 +8,16 @@ legacyForge {
     // legacy MinecraftForge ATs are not valid
     // causing the compile to fail running into invalid AT files
     validateAccessTransformers.set(false)
+
+    afterEvaluate {
+        tasks.withType(Jar::class.java) {
+            manifest {
+                attributes.put("MCP-Version", mcpVersion)
+                // .version would point to project.version
+                attributes.put("Forge-Version", this@legacyForge.version)
+            }
+        }
+    }
 }
 
 dependencies {
