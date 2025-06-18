@@ -40,9 +40,10 @@ java {
 }
 
 repositories {
-    maven("https://maven.apexstudios.dev/private")
     gradlePluginPortal()
     mavenCentral()
+    maven("https://maven.apexstudios.dev/releases")
+    maven("https://maven.apexstudios.dev/private")
 }
 
 dependencies {
