@@ -40,10 +40,9 @@ java {
 }
 
 repositories {
+    maven("https://maven.apexstudios.dev/private")
     gradlePluginPortal()
     mavenCentral()
-    maven("https://maven.neoforged.net/releases")
-    maven("https://maven.neoforged.net/private")
 }
 
 dependencies {

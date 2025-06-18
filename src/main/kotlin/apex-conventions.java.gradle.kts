@@ -57,9 +57,5 @@ tasks.withType<JavaCompile> {
 }
 
 repositories {
-    maven("https://maven.apexstudios.dev/releases") {
-        content {
-            includeGroup("dev.apexstudios")
-        }
-    }
+    maven("https://maven.apexstudios.dev/private")
 }

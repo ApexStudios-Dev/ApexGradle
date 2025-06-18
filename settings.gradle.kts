@@ -1,5 +1,6 @@
 pluginManagement {
     repositories {
+        maven("https://maven.apexstudios.dev/private")
         gradlePluginPortal()
     }
 }
