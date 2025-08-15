@@ -37,12 +37,20 @@ abstract class BaseApexExtension {
     fun neoFormVersion(neoFormVersion: String) = neoFormVersion(neoFormVersion, null, null)
 
     fun neoVersion(loaderVersion: String, parchmentVersion: String?, parchmentMappings: String?) {
-        // <major>.<minor>[-beta][-pr-#-<branch>]
-        val tokens = loaderVersion.split("-", limit = 3)
+        // <major>.<minor>[-beta][-pr-<num>-<branch>]
+        // 0: <major>.<minor>
+        // 1: [-beta]
+        // 2: [-pr-<num>-<branch>]
+        // var testVersion = "21.8.0"
+        // testVersion += "-beta.5"
+        // testVersion += "-pr-2574-feature.5"
 
-        if(tokens.size >= 3 && tokens[2].contains("-")) {
-            val prNum = tokens[2].split("-")[1].toInt()
-            neoPrMaven(getProject().repositories, prNum)
+        if(loaderVersion.contains("pr-")) {
+            var prNum = loaderVersion.substring(loaderVersion.indexOf("pr-"))
+            prNum = prNum.substring("pr-".length) // <num>-<branch>
+            val prNumTokens = prNum.split("-", limit = 2) // [<num>, <branch>]
+            // println(prNumTokens)
+            neoPrMaven(getProject().repositories, prNumTokens[0].toInt())
         }
 
         neoForge {
@@ -50,6 +58,7 @@ abstract class BaseApexExtension {
         }
 
         if(parchmentMappings != null) {
+            val tokens = loaderVersion.split("-")
             val gameVersion = parchmentVersion ?: "1.${tokens[0].substring(0, tokens[0].lastIndexOf("."))}"
             parchment(gameVersion, parchmentMappings)
         }
