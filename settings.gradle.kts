@@ -13,10 +13,6 @@ dependencyResolutionManagement {
         }
 
         plugin("ideaext", "org.jetbrains.gradle.plugin.idea-ext").version("1.1.9")
-
-        version("immaculate", "0.1.6")
-        library("immaculate", "dev.lukebemish.immaculate", "dev.lukebemish.immaculate.gradle.plugin").versionRef("immaculate")
-        plugin("immaculate", "dev.lukebemish.immaculate").versionRef("immaculate")
     }
 }
 
