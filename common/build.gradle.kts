@@ -1,6 +1,5 @@
 plugins {
     `java-library`
-    `kotlin-dsl`
     `maven-publish`
 
     alias(libs.plugins.ideaext)
@@ -10,10 +9,10 @@ val IS_CI = providers.environmentVariable("CI").map(String::toBoolean).getOrElse
 val MAVEN_USERNAME = providers.environmentVariable("MAVEN_USERNAME")
 val MAVEN_PASSWORD = providers.environmentVariable("MAVEN_PASSWORD")
 
-group = "dev.apexstudios"
+group = "dev.apexstudios.gradle.common"
 version = providers.environmentVariable("VERSION").getOrElse("9.9.999")
-base.archivesName = "apexgradle"
-println("ApexGradle: $version")
+base.archivesName = "apexgradle-common"
+println("ApexGradle-Common: $version")
 
 idea.module {
     if(!IS_CI) {
@@ -46,12 +45,9 @@ repositories {
 }
 
 dependencies {
-    implementation(libs.moddevgradle)
-}
-
-tasks.withType<JavaCompile> {
-    options.encoding = "UTF-8"
-    options.release.set(17)
+    implementation(gradleApi())
+    implementation(libs.ideaext)
+    implementation(libs.toml4j)
 }
 
 publishing {
