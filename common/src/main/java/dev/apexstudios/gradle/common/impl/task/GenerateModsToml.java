@@ -99,21 +99,18 @@ public abstract class GenerateModsToml extends DefaultTask {
         if(mod.getInjectDependencies().get()) {
             var objects = getProject().getObjects();
             appendDependency(objects, dependencies, getMinecraftVersion(), "minecraft", GenerateModsToml::incrementVersion);
+            appendDependency(objects, dependencies, getNeoForgeVersion(), "neoforge", GenerateModsToml::incrementNeoForgeVersion);
 
-            appendDependency(objects, dependencies, getNeoForgeVersion(), "neoforge", version -> {
-                // <major>.<minor>.<build>[-alpha|beta][-pr#]
-                var tokens = version.split("-");
-                // <major>.<minor>.<build>
-                var baseVersion = tokens.length == 0 ? version : tokens[0];
-                // [<major>, <minor>, <build>]
-                tokens = baseVersion.split("\\.");
+            mod.getRequiredMods().forEach(requiredMod -> appendDependency(objects, dependencies, requiredMod.getVersion().map(version -> {
+                // mods can have '${file.jarVersion}'
+                if(!version.equals("${file.jarVersion}"))
+                    return version;
 
-                if(tokens.length != 3)
-                    return null;
-
-                baseVersion = tokens[0] + '.' + tokens[1];
-                return incrementVersion(baseVersion);
-            });
+                // attempt to lookup project version if using jar marker
+                // default to '9.9.999' if no project version was set
+                var projectVersion = getProject().getVersion().toString();
+                return projectVersion.isBlank() || projectVersion.equalsIgnoreCase("unspecified") ? "9.9.999" : projectVersion;
+            }), requiredMod.getModId().get(), GenerateModsToml::incrementNeoForgeVersion));
         }
 
         mod.getDependencies().forEach(dependency -> dependencies.add(toMap(dependency)));
@@ -137,7 +134,7 @@ public abstract class GenerateModsToml extends DefaultTask {
         tomlWriter.write(map, outputFile);
     }
 
-    private static void appendDependency(ObjectFactory objects, List<Map<String, Object>> dependencies, Property<String> property, String modId, Function<String, String> nextVersionMapper) {
+    private static void appendDependency(ObjectFactory objects, List<Map<String, Object>> dependencies, Provider<String> property, String modId, Function<String, String> nextVersionMapper) {
         var dependency = objects.newInstance(ModDependency.class, modId);
 
         dependency.getVersionRange().set(property.map(version -> {
@@ -211,5 +208,21 @@ public abstract class GenerateModsToml extends DefaultTask {
         var numIndex = index + 1;
         var num = Integer.parseInt(version.substring(numIndex)) + 1;
         return version.substring(0, numIndex) + num;
+    }
+
+    @Nullable
+    private static String incrementNeoForgeVersion(String version) {
+        // <major>.<minor>.<build>[-alpha|beta][-pr#]
+        var tokens = version.split("-");
+        // <major>.<minor>.<build>
+        var baseVersion = tokens.length == 0 ? version : tokens[0];
+        // [<major>, <minor>, <build>]
+        tokens = baseVersion.split("\\.");
+
+        if(tokens.length != 3)
+            return null;
+
+        baseVersion = tokens[0] + '.' + tokens[1];
+        return incrementVersion(baseVersion);
     }
 }
