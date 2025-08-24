@@ -103,8 +103,10 @@ public abstract class BaseApexPlugin implements Plugin<Project> {
     public static void setupModCommon(Project project, IMod mod) {
         var apex = Util.getExtension(project, IApexExtension.class);
         var ideaModule = Util.getExtension(project.getRootProject(), IdeaModel.class).getModule();
+        var sourceSets = Util.getSourceSets(project);
 
         var main = createModSourceSet(project, mod, SourceSet.MAIN_SOURCE_SET_NAME);
+        Util.extendSourceSet(project.getDependencies(), main, sourceSets.getByName(SourceSet.MAIN_SOURCE_SET_NAME));
         main.resources(spec -> spec.srcDir(mod.directory("src/" + SourceSet.MAIN_SOURCE_SET_NAME + "/generated")));
         ideaModule.getGeneratedSourceDirs().add(mod.directory("src/" + SourceSet.MAIN_SOURCE_SET_NAME + "/generated").get().getAsFile());
 
@@ -208,6 +210,7 @@ public abstract class BaseApexPlugin implements Plugin<Project> {
         // setup game tests
         if(mod.getHasGameTest().get()) {
             var test = createModSourceSet(project, mod, SourceSet.TEST_SOURCE_SET_NAME);
+            Util.extendSourceSet(project.getDependencies(), main, sourceSets.getByName(SourceSet.TEST_SOURCE_SET_NAME));
             Util.extendSourceSet(project.getDependencies(), main, test);
             extendModSources(project, mod, test, SourceSet.MAIN_SOURCE_SET_NAME);
             ideaModule.getTestSources().from(mod.directory("src/" + SourceSet.TEST_SOURCE_SET_NAME + "/java"));
