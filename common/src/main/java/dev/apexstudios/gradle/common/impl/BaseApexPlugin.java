@@ -95,7 +95,13 @@ public abstract class BaseApexPlugin implements Plugin<Project> {
                 mod.getAutoDetectAccessTransformers(),
                 spec -> spec.include("**/access*transformer*.cfg"),
                 mod.getAccessTransformers(),
-                apex.getAccessTransformers().getFiles()::from
+                apex.getAccessTransformers().getFiles()::from,
+                file -> {
+                    apex.getAccessTransformers().getFiles().from(file);
+
+                    if(!file.getName().toLowerCase(Locale.ROOT).contains("dev"))
+                        mod.getAccessTransformers().add(relativePath(resources, file));
+                }
         );
 
         // mixin configs
@@ -202,9 +208,9 @@ public abstract class BaseApexPlugin implements Plugin<Project> {
         return Util.createName(mod.getName(), name);
     }
 
-    private static void injectAndDiscoverFiles(int maxCount, IMod mod, Directory directory, String name, @Nullable Property<Boolean> autoDetect, Action<PatternFilterable> filter, ListProperty<String> modFiles, Action<File> action) {
-        injectExistingFiles(maxCount, mod, directory, name, autoDetect, modFiles, action);
-        discoverExistingFiles(maxCount, mod, directory, name, autoDetect, filter, action);
+    private static void injectAndDiscoverFiles(int maxCount, IMod mod, Directory directory, String name, @Nullable Property<Boolean> autoDetect, Action<PatternFilterable> filter, ListProperty<String> modFiles, Action<File> injectAction, Action<File> discoverAction) {
+        injectExistingFiles(maxCount, mod, directory, name, autoDetect, modFiles, injectAction);
+        discoverExistingFiles(maxCount, mod, directory, name, autoDetect, filter, discoverAction);
     }
 
     private static void discoverExistingFiles(int maxCount, IMod mod, Directory directory, String name, @Nullable Property<Boolean> autoDetect, Action<PatternFilterable> filter, Action<File> action) {
@@ -242,8 +248,12 @@ public abstract class BaseApexPlugin implements Plugin<Project> {
         action.execute(file);
     }
 
+    private static String relativePath(Directory directory, File file) {
+        return directory.getAsFile().toPath().relativize(file.toPath()).toString();
+    }
+
     private static Action<File> asRelativePath(Directory directory, Action<String> action) {
-        return file -> action.execute(directory.getAsFile().toPath().relativize(file.toPath()).toString());
+        return file -> action.execute(relativePath(directory, file));
     }
 
     private static Action<File> appendRelativePath(Directory directory, ListProperty<String> files) {
