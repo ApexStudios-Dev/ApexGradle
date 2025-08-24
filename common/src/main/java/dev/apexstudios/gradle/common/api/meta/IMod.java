@@ -1,9 +1,7 @@
 package dev.apexstudios.gradle.common.api.meta;
 
 import dev.apexstudios.gradle.common.impl.BaseApexPlugin;
-import java.io.Serializable;
 import org.gradle.api.Action;
-import org.gradle.api.Named;
 import org.gradle.api.NamedDomainObjectContainer;
 import org.gradle.api.file.Directory;
 import org.gradle.api.file.DirectoryProperty;
@@ -15,9 +13,7 @@ import org.gradle.api.provider.Provider;
 import org.gradle.api.tasks.SourceSet;
 import org.jetbrains.annotations.ApiStatus;
 
-public interface IMod extends Named, Serializable {
-    Property<String> getModId();
-
+public interface IMod extends IModProperties {
     Property<Boolean> getAutoDetectAccessTransformers();
 
     Property<Boolean> getAutoDetectMixinConfigs();
@@ -48,6 +44,15 @@ public interface IMod extends Named, Serializable {
     }
 
     NamedDomainObjectContainer<IMod> getRequiredMods();
+
+    NamedDomainObjectContainer<ISubMod> getChildren();
+
+    @ApiStatus.NonExtendable
+    default NamedDomainObjectContainer<ISubMod> children(Action<NamedDomainObjectContainer<ISubMod>> action) {
+        var children = getChildren();
+        action.execute(children);
+        return children;
+    }
 
     Property<Boolean> getHasDataGen();
 
@@ -86,28 +91,6 @@ public interface IMod extends Named, Serializable {
     Property<Boolean> getShowAsResourcePack();
 
     Property<Boolean> getShowAsDataPack();
-
-    Property<String> getNamespace();
-
-    Property<String> getVersion();
-
-    Property<String> getDisplayName();
-
-    Property<String> getDescription();
-
-    Property<String> getLogoFile();
-
-    Property<Boolean> getLogoBlur();
-
-    Property<String> getUpdateJsonURL();
-
-    Property<String> getModURL();
-
-    ListProperty<String> getCredits();
-
-    ListProperty<String> getAuthors();
-
-    Property<String> getDisplayURL();
 
     Property<String> getEnumExtensions();
 

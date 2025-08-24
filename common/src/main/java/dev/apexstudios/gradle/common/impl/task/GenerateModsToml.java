@@ -3,6 +3,7 @@ package dev.apexstudios.gradle.common.impl.task;
 import com.moandjiezana.toml.TomlWriter;
 import dev.apexstudios.gradle.common.api.meta.IMod;
 import dev.apexstudios.gradle.common.api.meta.IModDependency;
+import dev.apexstudios.gradle.common.api.meta.IModProperties;
 import dev.apexstudios.gradle.common.impl.meta.ModDependency;
 import java.io.IOException;
 import java.util.LinkedHashMap;
@@ -13,6 +14,7 @@ import java.util.Objects;
 import java.util.function.Function;
 import javax.inject.Inject;
 import org.gradle.api.DefaultTask;
+import org.gradle.api.Project;
 import org.gradle.api.file.RegularFileProperty;
 import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.provider.ListProperty;
@@ -56,68 +58,6 @@ public abstract class GenerateModsToml extends DefaultTask {
     public void execute() throws IOException {
         Objects.requireNonNull(mod);
 
-        var map = new LinkedHashMap<String, Object>();
-        append(map, "modLoader", mod.getModLoader());
-        append(map, "loaderVersion", mod.getLoaderVersion());
-        append(map, "license", mod.getLicense());
-        append(map, "showAsResourcePack", mod.getShowAsResourcePack());
-        append(map, "showAsDataPack", mod.getShowAsDataPack());
-        append(map, "issueTrackerURL", mod.getIssueTrackerURL());
-
-        var modMap = new LinkedHashMap<String, Object>();
-        append(modMap, "modId", mod.getModId());
-        append(modMap, "namespace", mod.getNamespace());
-        append(modMap, "version", mod.getVersion());
-        append(modMap, "displayName", mod.getDisplayName());
-        append(modMap, "description", mod.getDescription());
-
-        var logoFile = mod.getLogoFile();
-
-        if(logoFile.isPresent()) {
-            var file = mod.file("src/" + SourceSet.MAIN_SOURCE_SET_NAME + "/resources/" + logoFile.get());
-
-            if(file.get().getAsFile().exists()) {
-                modMap.put("logoFile", logoFile.get());
-                append(modMap, "logoBlur", mod.getLogoBlur());
-            }
-        }
-
-        append(modMap, "updateJSONURL", mod.getUpdateJsonURL());
-        append(modMap, "modUrl", mod.getModURL());
-        appendJoining(modMap, "credits", mod.getCredits(), ",");
-        appendJoining(modMap, "authors", mod.getAuthors(), ",");
-        append(modMap, "displayURL", mod.getDisplayURL());
-        append(modMap, "enumExtensions", mod.getEnumExtensions());
-        append(modMap, "featureFlags", mod.getFeatureFlags());
-        map.put("mods", List.of(modMap));
-
-        appendExistingFiles(mod, map, "accessTransformers", mod.getAccessTransformers(), file -> Map.of("file", file));
-        appendExistingFiles(mod, map, "mixins", mod.getMixinConfigs(), file -> Map.of("config", file));
-
-        var dependencies = new LinkedList<Map<String, Object>>();
-
-        if(mod.getInjectDependencies().get()) {
-            var objects = getProject().getObjects();
-            appendDependency(objects, dependencies, getMinecraftVersion(), "minecraft", GenerateModsToml::incrementVersion);
-            appendDependency(objects, dependencies, getNeoForgeVersion(), "neoforge", GenerateModsToml::incrementNeoForgeVersion);
-
-            mod.getRequiredMods().forEach(requiredMod -> appendDependency(objects, dependencies, requiredMod.getVersion().map(version -> {
-                // mods can have '${file.jarVersion}'
-                if(!version.equals("${file.jarVersion}"))
-                    return version;
-
-                // attempt to lookup project version if using jar marker
-                // default to '9.9.999' if no project version was set
-                var projectVersion = getProject().getVersion().toString();
-                return projectVersion.isBlank() || projectVersion.equalsIgnoreCase("unspecified") ? "9.9.999" : projectVersion;
-            }), requiredMod.getModId().get(), GenerateModsToml::incrementNeoForgeVersion));
-        }
-
-        mod.getDependencies().forEach(dependency -> dependencies.add(toMap(dependency)));
-
-        if(!dependencies.isEmpty())
-            map.put("dependencies." + mod.getModId().get(), dependencies);
-
         var outputFile = getOutputFile().getAsFile().get();
         var directory = outputFile.getParentFile();
 
@@ -131,7 +71,7 @@ public abstract class GenerateModsToml extends DefaultTask {
                 .indentValuesBy(getValueIndentation().get())
                 .build();
 
-        tomlWriter.write(map, outputFile);
+        tomlWriter.write(serialize(getProject(), mod, getMinecraftVersion(), getNeoForgeVersion()), outputFile);
     }
 
     private static void appendDependency(ObjectFactory objects, List<Map<String, Object>> dependencies, Provider<String> property, String modId, Function<String, String> nextVersionMapper) {
@@ -147,10 +87,84 @@ public abstract class GenerateModsToml extends DefaultTask {
             return range + ')';
         }));
 
-        dependencies.add(toMap(dependency));
+        var dependencyMap = serialize(dependency);
+
+        if(!dependencyMap.isEmpty())
+            dependencies.add(dependencyMap);
     }
 
-    private static Map<String, Object> toMap(IModDependency dependency) {
+    private static Map<String, Object> serialize(Project project, IMod mod, Property<String> minecraftVersion, Property<String> neoForgeVersion) {
+        var map = new LinkedHashMap<String, Object>();
+        append(map, "modLoader", mod.getModLoader());
+        append(map, "loaderVersion", mod.getLoaderVersion());
+        append(map, "license", mod.getLicense());
+        append(map, "showAsResourcePack", mod.getShowAsResourcePack());
+        append(map, "showAsDataPack", mod.getShowAsDataPack());
+        append(map, "issueTrackerURL", mod.getIssueTrackerURL());
+
+        var modMaps = new LinkedList<Map<String, Object>>();
+
+        var modMap = serialize(mod, mod);
+        append(modMap, "enumExtensions", mod.getEnumExtensions());
+        append(modMap, "featureFlags", mod.getFeatureFlags());
+        modMaps.add(modMap);
+
+        mod.getChildren().forEach(child -> {
+            var childMap = serialize(mod, child);
+
+            if(!childMap.isEmpty())
+                modMaps.add(childMap);
+        });
+
+        map.put("mods", modMaps);
+
+        appendExistingFiles(mod, map, "accessTransformers", mod.getAccessTransformers(), file -> Map.of("file", file));
+        appendExistingFiles(mod, map, "mixins", mod.getMixinConfigs(), file -> Map.of("config", file));
+
+        var dependencies = serializeDependencies(project, mod, minecraftVersion, neoForgeVersion);
+
+        if(!dependencies.isEmpty()) {
+            map.put("dependencies." + mod.getModId().get(), dependencies);
+
+            mod.getChildren().forEach(child -> {
+                var childDependencies = new LinkedList<>(dependencies);
+                appendMod(project, childDependencies, mod);
+                map.put("dependencies." + child.getModId().get(), childDependencies);
+            });
+        }
+
+        return map;
+    }
+
+    private static Map<String, Object> serialize(IMod mod, IModProperties properties) {
+        var map = new LinkedHashMap<String, Object>();
+        append(map, "modId", properties.getModId());
+        append(map, "namespace", properties.getNamespace());
+        append(map, "version", properties.getVersion());
+        append(map, "displayName", properties.getDisplayName());
+        append(map, "description", properties.getDescription());
+
+        var logoFile = properties.getLogoFile();
+
+        if(logoFile.isPresent()) {
+            var file = mod.file("src/" + SourceSet.MAIN_SOURCE_SET_NAME + "/resources/" + logoFile.get());
+
+            if(file.get().getAsFile().exists()) {
+                map.put("logoFile", logoFile.get());
+                append(map, "logoBlur", properties.getLogoBlur());
+            }
+        }
+
+        append(map, "updateJSONURL", properties.getUpdateJsonURL());
+        append(map, "modUrl", properties.getModURL());
+        appendJoining(map, "credits", properties.getCredits(), ",");
+        appendJoining(map, "authors", properties.getAuthors(), ",");
+        append(map, "displayURL", properties.getDisplayURL());
+
+        return map;
+    }
+
+    private static Map<String, Object> serialize(IModDependency dependency) {
         var map = new LinkedHashMap<String, Object>();
         map.put("modId", dependency.getModId());
         append(map, "type", dependency.getType());
@@ -160,6 +174,39 @@ public abstract class GenerateModsToml extends DefaultTask {
         append(map, "side", dependency.getSide());
         append(map, "referralUrl", dependency.getReferralURL());
         return map;
+    }
+
+    private static List<Map<String, Object>> serializeDependencies(Project project, IMod mod, Property<String> minecraftVersion, Property<String> neoForgeVersion) {
+        var dependencies = new LinkedList<Map<String, Object>>();
+
+        if(mod.getInjectDependencies().get()) {
+            var objects = project.getObjects();
+            appendDependency(objects, dependencies, minecraftVersion, "minecraft", GenerateModsToml::incrementVersion);
+            appendDependency(objects, dependencies, neoForgeVersion, "neoforge", GenerateModsToml::incrementNeoForgeVersion);
+            mod.getRequiredMods().forEach(requiredMod -> appendMod(project, dependencies, requiredMod));
+        }
+
+        mod.getDependencies().forEach(dependency -> {
+            var dependencyMap = serialize(dependency);
+
+            if(!dependencyMap.isEmpty())
+                dependencies.add(dependencyMap);
+        });
+
+        return dependencies;
+    }
+
+    private static void appendMod(Project project, List<Map<String, Object>> dependencies, IModProperties properties) {
+        appendDependency(project.getObjects(), dependencies, properties.getVersion().map(version -> {
+            // mods can have '${file.jarVersion}'
+            if(!version.equals("${file.jarVersion}"))
+                return version;
+
+            // attempt to lookup project version if using jar marker
+            // default to '9.9.999' if no project version was set
+            var projectVersion = project.getVersion().toString();
+            return projectVersion.isBlank() || projectVersion.equalsIgnoreCase("unspecified") ? "9.9.999" : projectVersion;
+        }), properties.getModId().get(), GenerateModsToml::incrementNeoForgeVersion);
     }
 
     private static void append(Map<String, Object> map, String key, Provider<?> property) {
