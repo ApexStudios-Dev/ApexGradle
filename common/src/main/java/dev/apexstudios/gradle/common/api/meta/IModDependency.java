@@ -9,6 +9,8 @@ public interface IModDependency extends Named, Serializable {
 
     Property<ReleaseType> getType();
 
+    Property<String> getReason();
+
     Property<String> getVersionRange();
 
     Property<Ordering> getOrdering();
