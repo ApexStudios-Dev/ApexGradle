@@ -156,9 +156,9 @@ public abstract class BaseApexPlugin implements Plugin<Project> {
             var data = createModSourceSet(project, mod, DATA);
             Util.extendSourceSet(project.getDependencies(), main, data);
             data.resources(spec -> spec.setSrcDirs(Collections.emptyList()));
-            main.resources(spec -> spec.srcDir("src/" + DATA + '/' + GENERATED));
-            ideaModule.getExcludeDirs().add(project.file("src/" + DATA + '/' + GENERATED + "/.cache"));
-            ideaModule.getGeneratedSourceDirs().add(project.file("src/" + DATA + '/' + GENERATED + "/.cache"));
+            main.resources(spec -> spec.srcDir(mod.directory("src/" + DATA + '/' + GENERATED)));
+            ideaModule.getExcludeDirs().add(mod.directory("src/" + DATA + '/' + GENERATED + "/.cache").get().getAsFile());
+            ideaModule.getGeneratedSourceDirs().add(mod.directory("src/" + DATA + '/' + GENERATED + "/.cache").get().getAsFile());
 
             mod.dataRun(run -> {
                 run.clientData();
@@ -167,8 +167,8 @@ public abstract class BaseApexPlugin implements Plugin<Project> {
                 run.getProgramArguments().addAll(
                         "--mod", mod.getModId().get(),
                         "--all",
-                        "--output", mod.file("src/" + BaseApexPlugin.DATA + '/' + BaseApexPlugin.GENERATED).get().getAsFile().getAbsolutePath(),
-                        "--existing", mod.file("src/" + SourceSet.MAIN_SOURCE_SET_NAME + "/resources").get().getAsFile().getAbsolutePath()
+                        "--output", mod.directory("src/" + BaseApexPlugin.DATA + '/' + BaseApexPlugin.GENERATED).get().getAsFile().getAbsolutePath(),
+                        "--existing", mod.directory("src/" + SourceSet.MAIN_SOURCE_SET_NAME + "/resources").get().getAsFile().getAbsolutePath()
                 );
             });
         }
@@ -177,8 +177,8 @@ public abstract class BaseApexPlugin implements Plugin<Project> {
         if(mod.getHasGameTest().get()) {
             var test = createModSourceSet(project, mod, SourceSet.TEST_SOURCE_SET_NAME);
             Util.extendSourceSet(project.getDependencies(), main, test);
-            ideaModule.getTestSources().from(mod.file("src/" + SourceSet.TEST_SOURCE_SET_NAME + "/java"));
-            ideaModule.getTestResources().from(mod.file("src/" + SourceSet.TEST_SOURCE_SET_NAME + "/resources"));
+            ideaModule.getTestSources().from(mod.directory("src/" + SourceSet.TEST_SOURCE_SET_NAME + "/java"));
+            ideaModule.getTestResources().from(mod.directory("src/" + SourceSet.TEST_SOURCE_SET_NAME + "/resources"));
 
             mod.gameTestRun(run -> {
                 run.getIdeName().set(mod.getName() + " - GameTest");
