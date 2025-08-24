@@ -6,7 +6,9 @@ import dev.apexstudios.gradle.common.api.util.Util;
 import dev.apexstudios.gradle.common.impl.task.GenerateModsToml;
 import java.io.File;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.Locale;
+import java.util.Set;
 import org.gradle.api.Action;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
@@ -17,6 +19,7 @@ import org.gradle.api.provider.Property;
 import org.gradle.api.tasks.SourceSet;
 import org.gradle.api.tasks.compile.JavaCompile;
 import org.gradle.api.tasks.util.PatternFilterable;
+import org.gradle.internal.BiAction;
 import org.gradle.plugins.ide.idea.model.IdeaModel;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.gradle.ext.IdeaExtPlugin;
@@ -79,6 +82,22 @@ public abstract class BaseApexPlugin implements Plugin<Project> {
             spec.getLanguageVersion().set(apex.getJavaVersion());
             spec.getVendor().set(apex.getJvmVendor());
         });
+    }
+
+    public static void recursiveSetupMods(Project project, BiAction<Project, IMod> action) {
+        var apex = Util.getExtension(project, IApexExtension.class);
+        var processed = new HashSet<String>();
+
+        apex.getMods().forEach(mod -> setupMod(processed, project, mod, action));
+    }
+
+    private static void setupMod(Set<String> processed, Project project, IMod mod, BiAction<Project, IMod> action) {
+        mod.getRequiredMods().forEach(requiredMod -> setupMod(processed, project, requiredMod, action));
+
+        if(!processed.add(mod.getName()))
+            return;
+
+        action.execute(project, mod);
     }
 
     public static void setupModCommon(Project project, IMod mod) {
@@ -167,6 +186,7 @@ public abstract class BaseApexPlugin implements Plugin<Project> {
         if(mod.getHasDataGen().get()) {
             var data = createModSourceSet(project, mod, DATA);
             Util.extendSourceSet(project.getDependencies(), main, data);
+            extendModSources(project, mod, data, SourceSet.MAIN_SOURCE_SET_NAME);
             data.resources(spec -> spec.setSrcDirs(Collections.emptyList()));
             main.resources(spec -> spec.srcDir(mod.directory("src/" + DATA + '/' + GENERATED)));
             ideaModule.getExcludeDirs().add(mod.directory("src/" + DATA + '/' + GENERATED + "/.cache").get().getAsFile());
@@ -179,7 +199,7 @@ public abstract class BaseApexPlugin implements Plugin<Project> {
                 run.getProgramArguments().addAll(
                         "--mod", mod.getModId().get(),
                         "--all",
-                        "--output", mod.directory("src/" + BaseApexPlugin.DATA + '/' + BaseApexPlugin.GENERATED).get().getAsFile().getAbsolutePath(),
+                        "--output", mod.directory("src/" + DATA + '/' + GENERATED).get().getAsFile().getAbsolutePath(),
                         "--existing", mod.directory("src/" + SourceSet.MAIN_SOURCE_SET_NAME + "/resources").get().getAsFile().getAbsolutePath()
                 );
             });
@@ -189,6 +209,7 @@ public abstract class BaseApexPlugin implements Plugin<Project> {
         if(mod.getHasGameTest().get()) {
             var test = createModSourceSet(project, mod, SourceSet.TEST_SOURCE_SET_NAME);
             Util.extendSourceSet(project.getDependencies(), main, test);
+            extendModSources(project, mod, test, SourceSet.MAIN_SOURCE_SET_NAME);
             ideaModule.getTestSources().from(mod.directory("src/" + SourceSet.TEST_SOURCE_SET_NAME + "/java"));
             ideaModule.getTestResources().from(mod.directory("src/" + SourceSet.TEST_SOURCE_SET_NAME + "/resources"));
 
@@ -213,6 +234,19 @@ public abstract class BaseApexPlugin implements Plugin<Project> {
         return Util.getSourceSets(project).create(getModSourceSetName(mod, name), sourceSet -> {
             sourceSet.java(spec -> spec.setSrcDirs(mod.files("src/" + name + "/java")));
             sourceSet.resources(spec -> spec.setSrcDirs(mod.files("src/" + name + "/resources")));
+            extendModSources(project, mod, sourceSet, name);
+        });
+    }
+
+    private static void extendModSources(Project project, IMod mod, SourceSet modSourceSet, String name) {
+        var sourceSets = Util.getSourceSets(project);
+        var dependencies = project.getDependencies();
+
+        mod.getRequiredMods().forEach(requiredMod -> {
+            var requiredSourceSet = sourceSets.findByName(Util.createName(requiredMod.getName(), name));
+
+            if(requiredSourceSet != null)
+                Util.extendSourceSet(dependencies, requiredSourceSet, modSourceSet);
         });
     }
 

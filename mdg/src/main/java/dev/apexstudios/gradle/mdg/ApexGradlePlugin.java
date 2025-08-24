@@ -46,7 +46,7 @@ public class ApexGradlePlugin extends BaseApexPlugin {
         var neoForge = Util.getExtension(project, NeoForgeExtension.class);
 
         neoForge.enable(settings -> settings.setVersion(apex.getNeoForgeVersion().get()));
-        apex.getMods().all(mod -> setupMod(project, mod));
+        BaseApexPlugin.recursiveSetupMods(project, ApexGradlePlugin::setupMod);
         apex.getRuns().all(run -> setupRun(project, run));
 
         project.getTasks().withType(GenerateModsToml.class, task -> {
