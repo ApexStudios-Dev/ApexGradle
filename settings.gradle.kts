@@ -12,7 +12,9 @@ dependencyResolutionManagement {
             strictly("[2.0.72,2.1.0)")
         }
 
-        plugin("ideaext", "org.jetbrains.gradle.plugin.idea-ext").version("1.1.9")
+        version("ideaext", "1.1.9")
+        plugin("ideaext", "org.jetbrains.gradle.plugin.idea-ext").versionRef("ideaext")
+        library("ideaext", "gradle.plugin.org.jetbrains.gradle.plugin.idea-ext", "gradle-idea-ext").versionRef("ideaext")
     }
 }
 
@@ -21,3 +23,6 @@ plugins {
 }
 
 rootProject.name = "ApexGradle"
+
+include("mdg")
+include("common")

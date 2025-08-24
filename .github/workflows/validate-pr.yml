@@ -23,14 +23,14 @@ jobs:
       java-vendor: temurin
       version: ${{ needs.generate-vars.outputs.version }}
 
-  publish-maven:
-    name: Publish Maven
-    needs: [ generate-vars, build ]
-    if: success()
-    uses: ApexStudios-Dev/.github/.github/workflows/_publish-maven.yml@master
-    secrets: inherit
-    with:
-      java-version: 21
-      java-vendor: temurin
-      version: ${{ needs.generate-vars.outputs.version }}
-      publish-task: ':publishAllPublicationsToApexStudios-PrivateRepository'
+#  publish-maven:
+#    name: Publish Maven
+#    needs: [ generate-vars, build ]
+#    if: success()
+#    uses: ApexStudios-Dev/.github/.github/workflows/_publish-maven.yml@master
+#    secrets: inherit
+#    with:
+#      java-version: 21
+#      java-vendor: temurin
+#      version: ${{ needs.generate-vars.outputs.version }}
+#      publish-task: ':publishAllPublicationsToApexStudios-PrivateRepository'
