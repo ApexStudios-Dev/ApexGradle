@@ -47,6 +47,7 @@ repositories {
 dependencies {
     implementation(gradleApi())
     implementation(libs.ideaext)
+    implementation(libs.toml4j)
 }
 
 publishing {

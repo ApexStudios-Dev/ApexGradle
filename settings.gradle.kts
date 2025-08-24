@@ -15,6 +15,8 @@ dependencyResolutionManagement {
         version("ideaext", "1.1.9")
         plugin("ideaext", "org.jetbrains.gradle.plugin.idea-ext").versionRef("ideaext")
         library("ideaext", "gradle.plugin.org.jetbrains.gradle.plugin.idea-ext", "gradle-idea-ext").versionRef("ideaext")
+
+        library("toml4j", "com.moandjiezana.toml", "toml4j").version("0.7.2")
     }
 }
 

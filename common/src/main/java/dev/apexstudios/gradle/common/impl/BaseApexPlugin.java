@@ -3,8 +3,10 @@ package dev.apexstudios.gradle.common.impl;
 import dev.apexstudios.gradle.common.api.IApexExtension;
 import dev.apexstudios.gradle.common.api.meta.IMod;
 import dev.apexstudios.gradle.common.api.util.Util;
+import dev.apexstudios.gradle.common.impl.task.GenerateModsToml;
 import java.io.File;
 import java.util.Collections;
+import java.util.Locale;
 import org.gradle.api.Action;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
@@ -82,7 +84,11 @@ public abstract class BaseApexPlugin implements Plugin<Project> {
     public static void setupModCommon(Project project, IMod mod) {
         var apex = Util.getExtension(project, IApexExtension.class);
         var ideaModule = Util.getExtension(project.getRootProject(), IdeaModel.class).getModule();
+
         var main = createModSourceSet(project, mod, SourceSet.MAIN_SOURCE_SET_NAME);
+        main.resources(spec -> spec.srcDir(mod.directory("src/" + SourceSet.MAIN_SOURCE_SET_NAME + "/generated")));
+        ideaModule.getGeneratedSourceDirs().add(mod.directory("src/" + SourceSet.MAIN_SOURCE_SET_NAME + "/generated").get().getAsFile());
+
         var resources = mod.directory("src/" + SourceSet.MAIN_SOURCE_SET_NAME + "/resources").get();
 
         // discover mod files
@@ -191,6 +197,16 @@ public abstract class BaseApexPlugin implements Plugin<Project> {
                 run.getSourceSet().set(test);
             });
         }
+
+        var tasks = project.getTasks();
+        var modsTomlTask = tasks.register(Util.createName("generate", mod.getName(), "mods", "toml"), GenerateModsToml.class, task -> {
+            task.setMod(mod);
+            task.getNeoForgeVersion().set(apex.getNeoForgeVersion());
+            task.getMinecraftVersion().set(apex.getNeoForgeVersion().map(Util::getMinecraftFromNeo));
+            task.getOutputFile().set(mod.file("src/" + SourceSet.MAIN_SOURCE_SET_NAME + "/generated/META-INF/neoforge.mods.toml"));
+        });
+
+        tasks.getByName(main.getProcessResourcesTaskName()).dependsOn(modsTomlTask);
     }
 
     public static SourceSet createModSourceSet(Project project, IMod mod, String name) {

@@ -6,6 +6,7 @@ import dev.apexstudios.gradle.common.api.meta.IRun;
 import dev.apexstudios.gradle.common.api.util.IPublishingFileCollection;
 import dev.apexstudios.gradle.common.api.util.Util;
 import dev.apexstudios.gradle.common.impl.BaseApexPlugin;
+import dev.apexstudios.gradle.common.impl.task.GenerateModsToml;
 import dev.apexstudios.gradle.common.impl.util.PublishingFileCollection;
 import java.util.Collections;
 import java.util.List;
@@ -47,6 +48,11 @@ public class ApexGradlePlugin extends BaseApexPlugin {
         neoForge.enable(settings -> settings.setVersion(apex.getNeoForgeVersion().get()));
         apex.getMods().all(mod -> setupMod(project, mod));
         apex.getRuns().all(run -> setupRun(project, run));
+
+        project.getTasks().withType(GenerateModsToml.class, task -> {
+            task.getNeoForgeVersion().set(neoForge.getVersion());
+            task.getMinecraftVersion().set(neoForge.getMinecraftVersion());
+        });
     }
 
     private static void hotswap(IPublishingFileCollection ours, DataFileCollection theirs) {

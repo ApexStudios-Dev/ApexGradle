@@ -43,4 +43,22 @@ public interface Util {
         dependencies.add(into.getImplementationConfigurationName(), output);
         dependencies.add(into.getRuntimeOnlyConfigurationName(), output);
     }
+
+    String PR_PREFIX = "pr-";
+
+    static String getMinecraftFromNeo(String neoForgeVersion) {
+        var tokens = neoForgeVersion.split("-");
+        return "1." + tokens[0].substring(0, tokens[0].lastIndexOf('.'));
+    }
+
+    static int getPrNumFromNeo(String neoForgeVersion) {
+        if(!neoForgeVersion.contains(PR_PREFIX))
+            return -1;
+
+        var prNum = neoForgeVersion.substring(neoForgeVersion.indexOf(PR_PREFIX));
+        prNum = prNum.substring(PR_PREFIX.length()); // <num>-<branch>
+        var prNumTokens = prNum.split("-", 2); // [<num>, <branch>]
+
+        return Integer.parseInt(prNumTokens[0]);
+    }
 }
