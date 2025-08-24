@@ -75,7 +75,7 @@ public class ApexGradlePlugin extends BaseApexPlugin {
                 neoMod.sourceSet(data);
             });
 
-            mod.clientRun(run -> {
+            mod.dataRun(run -> {
                 if(neoForge.getVersionCapabilities().splitDataRuns())
                     run.clientData();
                 else
