@@ -16,10 +16,5 @@ object SourceSetExtensions {
         runtimeClasspath += source.output
     }
 
-    fun SourceSet.noop() {
-        java.setSrcDirs(emptyList<String>())
-        resources.setSrcDirs(emptyList<String>())
-    }
-
     fun sourceSets(project: Project): SourceSetContainer = project.extensions.getByType(JavaPluginExtension::class).sourceSets
 }
