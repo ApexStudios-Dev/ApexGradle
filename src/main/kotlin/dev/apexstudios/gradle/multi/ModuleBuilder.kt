@@ -8,7 +8,6 @@ import org.gradle.api.Action
 import org.gradle.api.Project
 import org.gradle.api.publish.maven.MavenPublication
 import org.gradle.api.tasks.SourceSet
-import org.gradle.configurationcache.extensions.capitalized
 import org.gradle.plugins.ide.idea.model.IdeaModel
 
 class ModuleBuilder(private val id: String, private val modId: String) {
@@ -164,7 +163,7 @@ class ModuleBuilder(private val id: String, private val modId: String) {
                         else
                             loadedMods.set(listOf(dataMod))
 
-                        ideName.set("${module.modId.capitalized()} - Data")
+                        ideName.set("${module.modId.capitalize()} - Data")
 
                         programArguments.addAll(
                             "--mod", module.modId,
