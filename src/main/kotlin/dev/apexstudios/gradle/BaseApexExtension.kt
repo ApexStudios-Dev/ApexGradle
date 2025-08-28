@@ -1,6 +1,5 @@
 package dev.apexstudios.gradle
 
-import groovyjarjarantlr4.v4.parse.GrammarTreeVisitor
 import net.neoforged.moddevgradle.dsl.NeoForgeExtension
 import org.gradle.api.Action
 import org.gradle.api.Project
@@ -10,7 +9,6 @@ import org.gradle.api.publish.PublishingExtension
 import org.gradle.api.tasks.SourceSet
 import org.gradle.jvm.toolchain.JvmVendorSpec
 import javax.inject.Inject
-import kotlin.collections.get
 
 abstract class BaseApexExtension {
     @Inject abstract fun getProject(): Project

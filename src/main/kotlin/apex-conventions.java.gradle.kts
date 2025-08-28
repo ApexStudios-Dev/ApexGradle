@@ -47,7 +47,7 @@ tasks.withType(Jar::class.java) {
             "Implementation-Title" to project.name,
             "Implementation-Vendor" to "ApexStudios",
             "Implementation-Version" to project.version,
-            "Implementation-Timtstamp" to SimpleDateFormat("dd-MM-yyyy'T'HH:mm:ssZ").format(Date())
+            "Implementation-Timestamp" to SimpleDateFormat("dd-MM-yyyy'T'HH:mm:ssZ").format(Date())
         ))
     }
 }
