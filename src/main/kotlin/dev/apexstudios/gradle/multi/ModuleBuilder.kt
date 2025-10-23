@@ -184,23 +184,50 @@ class ModuleBuilder(private val id: String, private val modId: String) {
             val moduleMainId = module.id(SourceSet.MAIN_SOURCE_SET_NAME)
             val moduleDataId = module.id(ApexExtension.DATA_NAME)
 
-            module.dependencies.mapNotNull { modules[it.lowercase()] }.forEach { dep ->
+            getDependencies(module).mapNotNull { modules[it.lowercase()] }.forEach { dep ->
                 val depMainId = dep.id(SourceSet.MAIN_SOURCE_SET_NAME)
                 sourceSets.getByName(moduleMainId).extend(project, depMainId)
 
-                if(module.hasData && dep.hasData) {
-                    val depDataId = dep.id(ApexExtension.DATA_NAME)
+                if(module.hasData) {
                     sourceSets.getByName(moduleDataId).extend(project, depMainId)
-                    sourceSets.getByName(moduleDataId).extend(project, depDataId)
 
                     apex.neoForge {
                         runs.getByName(moduleDataId) {
                             loadedMods.add(mods.getByName(depMainId))
-                            loadedMods.add(mods.getByName(depDataId))
+                        }
+                    }
+
+                    if(dep.hasData) {
+                        val depDataId = dep.id(ApexExtension.DATA_NAME)
+                        sourceSets.getByName(moduleDataId).extend(project, depDataId)
+
+                        apex.neoForge {
+                            runs.getByName(moduleDataId) {
+                                loadedMods.add(mods.getByName(depDataId))
+                            }
                         }
                     }
                 }
             }
+        }
+
+        private fun getDependencies(module: ApexModule): Set<String> {
+            val processed = mutableSetOf<String>()
+            return collectDependencies(processed, module)
+        }
+
+        private fun collectDependencies(processed: MutableSet<String>, module: ApexModule): Set<String> {
+            if(!processed.add(module.modId))
+                return emptySet()
+
+            val dependencies = mutableSetOf<String>()
+            dependencies.addAll(module.dependencies)
+
+            module.dependencies.mapNotNull { modules[it.lowercase()] }.forEach {
+                dependencies.addAll(collectDependencies(processed, it))
+            }
+
+            return dependencies
         }
     }
 
