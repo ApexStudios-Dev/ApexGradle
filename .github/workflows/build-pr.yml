@@ -1,0 +1,24 @@
+name: Build PR
+
+on:
+  pull_request:
+    types:
+      - synchronize
+      - opened
+
+jobs:
+  generate-vars:
+    name: Generate Vars
+    uses: ApexStudios-Dev/.github/.github/workflows/_generate-vars.yml@master
+    secrets: inherit
+
+  build:
+    name: Build
+    needs: generate-vars
+    if: success()
+    uses: ApexStudios-Dev/.github/.github/workflows/_build.yml@master
+    secrets: inherit
+    with:
+      java-version: 21
+      java-vendor: temurin
+      version: ${{ needs.generate-vars.outputs.version }}
