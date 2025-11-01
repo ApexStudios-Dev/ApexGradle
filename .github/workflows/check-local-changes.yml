@@ -1,4 +1,4 @@
-name: Build PR
+name: Check Local Changes
 
 on:
   pull_request:
@@ -7,9 +7,9 @@ on:
       - opened
 
 jobs:
-  build:
-    name: Build
-    uses: ApexStudios-Dev/.github/.github/workflows/_build.yml@master
+  check-local-changes:
+    name: Check Local Changes
+    uses: ApexStudios-Dev/.github/.github/workflows/_check-local-changes.yml@master
     secrets: inherit
     with:
       java-version: 21

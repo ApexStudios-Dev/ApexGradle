@@ -7,18 +7,11 @@ on:
     paths: [ "**/src/**" ]
 
 jobs:
-  generate-vars:
-    name: Generate Vars
-    uses: ApexStudios-Dev/.github/.github/workflows/_generate-vars.yml@master
-    secrets: inherit
-
-  publish:
-    name: Publish
+  publish-maven:
     uses: ApexStudios-Dev/.github/.github/workflows/_publish-maven.yml@master
-    needs: generate-vars
     secrets: inherit
     with:
       java-version: 21
       java-vendor: temurin
-      version: ${{ needs.generate-vars.outputs.version }}
-      publish-task: ':publishAllPublicationsToApexStudios-ReleasesRepository'
+      publish-task: ':publishReleasePublicationToApexStudios-ReleasesRepository'
+      use-self-runner: false
