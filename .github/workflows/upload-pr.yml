@@ -1,7 +1,7 @@
 name: Upload PR
 
 on:
-  pull_request_target:
+  pull_request:
     types:
       - synchronize
       - opened
