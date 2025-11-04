@@ -21,4 +21,4 @@ jobs:
     uses: ApexStudios-Dev/.github/.github/workflows/_publish-pr.yml@master
     secrets: inherit
     with:
-      artifacts-base-path: apex-conventions/java/|apex-conventions/maven-publishing/|apex-conventions/neoforge-base/|apex-conventions/neoforge-legacy/|apex-conventions/neoforge/|apex-conventions/vanilla/|dev/apexstudios/ApexGradle/
+      artifacts-base-path: dev/apexstudios/|apex-conventions/
