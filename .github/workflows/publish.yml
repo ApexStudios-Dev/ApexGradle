@@ -13,5 +13,5 @@ jobs:
     with:
       java-version: 21
       java-vendor: temurin
-      publish-task: ':publishReleasePublicationToApexStudios-ReleasesRepository'
+      publish-task: ':publishAllPublicationsToApexStudios-ReleasesRepository'
       use-self-runner: false
