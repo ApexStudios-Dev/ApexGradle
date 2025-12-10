@@ -39,10 +39,9 @@ java {
 }
 
 repositories {
+    maven("https://maven.apexstudios.dev/proxy")
     gradlePluginPortal()
     mavenCentral()
-    maven("https://maven.apexstudios.dev/releases")
-    maven("https://maven.apexstudios.dev/private")
 }
 
 dependencies {
@@ -59,17 +58,6 @@ publishing {
         if(MAVEN_USERNAME.isPresent && MAVEN_PASSWORD.isPresent) {
             maven("https://maven.apexstudios.dev/releases") {
                 name = "ApexStudios-Releases"
-
-                credentials {
-                    username = MAVEN_USERNAME.get()
-                    password = MAVEN_PASSWORD.get()
-                }
-
-                authentication.create<BasicAuthentication>("basic")
-            }
-
-            maven("https://maven.apexstudios.dev/private") {
-                name = "ApexStudios-Private"
 
                 credentials {
                     username = MAVEN_USERNAME.get()
