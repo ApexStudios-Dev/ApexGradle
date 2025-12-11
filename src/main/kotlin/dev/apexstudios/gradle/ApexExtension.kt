@@ -66,7 +66,7 @@ abstract class ApexExtension @Inject constructor(project: Project) : BaseApexExt
 
     companion object {
         const val DATA_NAME = "data"
-        val IS_CI = System.getenv("IS_CI").toBoolean()
+        val IS_CI = System.getenv("CI").toBoolean()
 
         fun getOrCreate(project: Project): ApexExtension {
             var extension = project.extensions.findByType(ApexExtension::class.java)
