@@ -46,6 +46,7 @@ repositories {
 
 dependencies {
     implementation(libs.moddevgradle)
+    implementation(libs.immaculate)
 }
 
 tasks.withType<JavaCompile> {

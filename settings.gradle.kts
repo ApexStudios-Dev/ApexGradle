@@ -12,6 +12,8 @@ dependencyResolutionManagement {
         }
 
         plugin("ideaext", "org.jetbrains.gradle.plugin.idea-ext").version("1.1.9")
+
+        library("immaculate", "dev.lukebemish.immaculate", "dev.lukebemish.immaculate.gradle.plugin").version("0.1.13")
     }
 }
 
