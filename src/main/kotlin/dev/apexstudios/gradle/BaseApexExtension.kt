@@ -21,8 +21,11 @@ abstract class BaseApexExtension {
         // <version>-<timestamp>
 
         neoForge {
-            // different case to not conflict
-            neoFormVersion = neoformVersion
+            enable {
+                // different case to not conflict
+                neoFormVersion = neoformVersion
+                isDisableRecompilation = ApexExtension.IS_CI
+            }
         }
 
         if(parchmentMappings != null) {
@@ -52,7 +55,10 @@ abstract class BaseApexExtension {
         }
 
         neoForge {
-            version = loaderVersion
+            enable {
+                version = loaderVersion
+                isDisableRecompilation = ApexExtension.IS_CI
+            }
         }
 
         if(parchmentMappings != null) {
