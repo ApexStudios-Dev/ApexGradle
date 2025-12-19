@@ -7,9 +7,7 @@ pluginManagement {
 
 dependencyResolutionManagement {
     versionCatalogs.create("libs") {
-        library("moddevgradle", "net.neoforged.moddev", "net.neoforged.moddev.gradle.plugin").version {
-            strictly("[2.0.124,2.1.0)")
-        }
+        library("moddevgradle", "net.neoforged.moddev", "net.neoforged.moddev.gradle.plugin").version("2.0.145-pr-298-universal-jar")
 
         plugin("ideaext", "org.jetbrains.gradle.plugin.idea-ext").version("1.1.9")
 
