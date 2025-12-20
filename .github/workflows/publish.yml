@@ -11,7 +11,7 @@ jobs:
     uses: ApexStudios-Dev/.github/.github/workflows/_publish-maven.yml@master
     secrets: inherit
     with:
-      java-version: 21
+      java-version: 25
       java-vendor: temurin
       publish-task: ':publishAllPublicationsToApexStudios-ReleasesRepository'
       use-self-runner: false
