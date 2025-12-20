@@ -1,18 +1,14 @@
-import dev.apexstudios.gradle.ApexExtension
-import dev.apexstudios.gradle.single.ApexSingleExtension
-
 plugins {
     `maven-publish`
 }
 
-val single = project.extensions.findByType(ApexSingleExtension::class.java)
-val publishName = single?.getModId()?.get() ?: project.name.lowercase()
+val IS_CI = providers.environmentVariable("CI").map(String::toBoolean).getOrElse(false)
 
 publishing {
     publications.create("release", MavenPublication::class.java) {
         afterEvaluate {
             groupId = project.group as String
-            artifactId = publishName
+            artifactId = project.name.lowercase()
             version = project.version as String
         }
 
@@ -33,7 +29,7 @@ publishing {
             }
         }
 
-        if(!ApexExtension.IS_CI)  {
+        if(!IS_CI)  {
             maven { url = uri(layout.buildDirectory.dir("mavenLocal")) }
             // mavenLocal()
         }

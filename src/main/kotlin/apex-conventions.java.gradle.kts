@@ -1,4 +1,3 @@
-import dev.apexstudios.gradle.ApexExtension
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -7,13 +6,13 @@ plugins {
     id("org.jetbrains.gradle.plugin.idea-ext")
 }
 
-val apex = ApexExtension.getOrCreate(project)
+val IS_CI = providers.environmentVariable("CI").map(String::toBoolean).getOrElse(false)
 
 version = providers.environmentVariable("VERSION").getOrElse("9.9.999")
 base.archivesName = project.name.lowercase()
 
 idea.module {
-    if(!ApexExtension.IS_CI) {
+    if(!IS_CI) {
         isDownloadSources = true
         isDownloadJavadoc = true
     }
@@ -30,10 +29,6 @@ sourceSets.main {
 }
 
 java {
-    toolchain {
-        vendor.set(apex.getJavaVendor())
-    }
-
     withSourcesJar()
 }
 

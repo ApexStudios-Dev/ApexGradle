@@ -1,10 +1,11 @@
-import dev.apexstudios.gradle.ApexExtension
 import net.neoforged.moddevgradle.dsl.ModDevExtension
 import org.slf4j.event.Level
 
 plugins {
     id("apex-conventions.java")
 }
+
+val IS_CI = providers.environmentVariable("CI").map(String::toBoolean).getOrElse(false)
 
 extensions.configure(ModDevExtension::class.java) {
     validateAccessTransformers.set(true)
@@ -49,8 +50,8 @@ extensions.configure(ModDevExtension::class.java) {
             systemProperty("terminal.ansi", "true") // fix terminal not having colors
 
             jvmArguments.addAll(type.map {
-                if(ApexExtension.IS_CI || !(it.equals("client") || it.equals("server")))
-                    return@map emptyList<String>()
+                if(IS_CI || !(it.equals("client") || it.equals("server")))
+                    return@map emptyList()
 
                 return@map listOf(
                     "-XX:+AllowEnhancedClassRedefinition",
@@ -65,10 +66,10 @@ extensions.configure(ModDevExtension::class.java) {
     afterEvaluate {
         tasks.withType(Jar::class.java) {
             manifest {
-                attributes.put("Minecraft-Version", minecraftVersion)
+                attributes["Minecraft-Version"] = minecraftVersion
 
                 if(parchment.enabled.get()) {
-                    attributes.put("Parchment", "${parchment.minecraftVersion.get()}-${parchment.mappingsVersion.get()}")
+                    attributes["Parchment"] = "${parchment.minecraftVersion.get()}-${parchment.mappingsVersion.get()}"
                 }
             }
         }
