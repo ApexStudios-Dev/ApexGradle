@@ -93,7 +93,7 @@ abstract class BaseApexExtension {
         }
     }
 
-    fun <TExtension> configureExtension(extensionType: Class<TExtension>, action: Action<TExtension>) {
+    fun <TExtension: Any> configureExtension(extensionType: Class<TExtension>, action: Action<TExtension>) {
         val extension = getProject().extensions.findByType(extensionType)
 
         if(extension != null) {
