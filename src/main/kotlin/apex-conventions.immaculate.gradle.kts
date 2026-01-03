@@ -21,16 +21,6 @@ immaculate {
 
             it
         }
-
-        custom("jspecifyNullable") {
-            it.replace("javax.annotation.Nullable", "org.jspecify.annotations.Nullable")
-                .replace("org.jetbrains.annotations.Nullable", "org.jspecify.annotations.Nullable")
-        }
-
-        custom("jspecifyNonNull") {
-            it.replace("javax.annotation.Nonnull", "org.jspecify.annotations.NonNull")
-                .replace("org.jetbrains.annotations.NotNull", "org.jspecify.annotations.NonNull")
-        }
     }
 }
 
@@ -40,6 +30,7 @@ val generatePackageInfos = tasks.register("generatePackageInfos", GeneratePackag
     }
 
     basePackage.set(provider { project.group as String })
+    onlyIf { annoations.isPresent }
 }
 
 tasks.register("applyAllFormatting") {
