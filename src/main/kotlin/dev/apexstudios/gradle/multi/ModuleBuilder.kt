@@ -157,13 +157,14 @@ class ModuleBuilder(private val id: String, private val modId: String) {
                             data()
 
                         sourceSet.set(data)
+                        ideFolderName.set("data")
 
                         if(singleExists)
                             loadedMods.set(listOf(singleData, dataMod))
                         else
                             loadedMods.set(listOf(dataMod))
 
-                        ideName.set("${module.modId.capitalize()} - Data")
+                        ideName.set("${module.modId.replace('_', '-')} - Data")
 
                         programArguments.addAll(
                             "--mod", module.modId,
