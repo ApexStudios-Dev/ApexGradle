@@ -8,7 +8,7 @@ publishing {
     publications.create("release", MavenPublication::class.java) {
         afterEvaluate {
             groupId = project.group as String
-            artifactId = project.name.lowercase()
+            artifactId = ApexExtension.modId(project)
             version = project.version as String
         }
 

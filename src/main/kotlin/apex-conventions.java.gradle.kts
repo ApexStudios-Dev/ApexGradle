@@ -8,7 +8,7 @@ plugins {
 }
 
 version = providers.environmentVariable("VERSION").getOrElse("0.0NONE")
-base.archivesName = project.name.lowercase()
+base.archivesName = ApexExtension.modId(project)
 
 idea.module {
     if(!ApexExtension.IS_CI) {

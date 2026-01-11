@@ -1,3 +1,4 @@
+import dev.apexstudios.gradle.ApexExtension
 import net.neoforged.moddevgradle.dsl.ModDevExtension
 
 plugins {
@@ -41,7 +42,7 @@ extensions.configure(ModDevExtension::class.java) {
             ideFolderName.set("Data")
 
             programArguments.addAll(
-                "--mod", project.name.lowercase(),
+                "--mod", ApexExtension.modId(project),
                 "--all",
                 "--output", file("src/data/generated").absolutePath,
                 "--existing", file("src/${SourceSet.MAIN_SOURCE_SET_NAME}/resources").absolutePath
