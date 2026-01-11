@@ -7,7 +7,7 @@ neoForge {
     afterEvaluate {
         tasks.withType(Jar::class.java) {
             manifest {
-                attributes.put("NeoForm-Version", neoFormVersion)
+                attributes["NeoForm-Version"] = neoFormVersion
             }
         }
     }

@@ -8,7 +8,7 @@ neoForge {
         tasks.withType(Jar::class.java) {
             manifest {
                 // .version would point to project.version
-                attributes.put("NeoForge-Version", this@neoForge.version)
+                attributes["NeoForge-Version"] = this@neoForge.version
             }
         }
     }

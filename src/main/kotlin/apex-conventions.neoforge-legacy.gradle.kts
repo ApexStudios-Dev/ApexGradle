@@ -12,9 +12,9 @@ legacyForge {
     afterEvaluate {
         tasks.withType(Jar::class.java) {
             manifest {
-                attributes.put("MCP-Version", mcpVersion)
+                attributes["MCP-Version"] = mcpVersion
                 // .version would point to project.version
-                attributes.put("Forge-Version", this@legacyForge.version)
+                attributes["Forge-Version"] = this@legacyForge.version
             }
         }
     }

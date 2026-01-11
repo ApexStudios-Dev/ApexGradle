@@ -47,10 +47,11 @@ extensions.configure(ModDevExtension::class.java) {
             // sourceSet.convention(sourceSets[SourceSet.MAIN_SOURCE_SET_NAME])
             // loadedMods.convention(mods)
             systemProperty("terminal.ansi", "true") // fix terminal not having colors
+            ideFolderName.set(type.map { it.capitalize() })
 
             jvmArguments.addAll(type.map {
                 if(ApexExtension.IS_CI || !(it.equals("client") || it.equals("server")))
-                    return@map emptyList<String>()
+                    return@map emptyList()
 
                 return@map listOf(
                     "-XX:+AllowEnhancedClassRedefinition",
@@ -65,10 +66,10 @@ extensions.configure(ModDevExtension::class.java) {
     afterEvaluate {
         tasks.withType(Jar::class.java) {
             manifest {
-                attributes.put("Minecraft-Version", minecraftVersion)
+                attributes["Minecraft-Version"] = minecraftVersion
 
                 if(parchment.enabled.get()) {
-                    attributes.put("Parchment", "${parchment.minecraftVersion.get()}-${parchment.mappingsVersion.get()}")
+                    attributes["Parchment"] = "${parchment.minecraftVersion.get()}-${parchment.mappingsVersion.get()}"
                 }
             }
         }

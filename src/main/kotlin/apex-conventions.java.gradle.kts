@@ -7,9 +7,7 @@ plugins {
     id("org.jetbrains.gradle.plugin.idea-ext")
 }
 
-val apex = ApexExtension.getOrCreate(project)
-
-version = providers.environmentVariable("VERSION").getOrElse("9.9.999")
+version = providers.environmentVariable("VERSION").getOrElse("0.0NONE")
 base.archivesName = project.name.lowercase()
 
 idea.module {
@@ -21,7 +19,7 @@ idea.module {
     excludeDirs.addAll(files(
         ".gradle",
         ".idea",
-        "gradle",
+        "gradle"
     ))
 }
 
@@ -31,7 +29,7 @@ sourceSets.main {
 
 java {
     toolchain {
-        vendor.set(apex.getJavaVendor())
+        vendor.set(provider { if(ApexExtension.IS_CI) JvmVendorSpec.ADOPTIUM else JvmVendorSpec.JETBRAINS })
     }
 
     withSourcesJar()
