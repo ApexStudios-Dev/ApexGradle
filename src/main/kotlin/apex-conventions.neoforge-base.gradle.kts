@@ -32,34 +32,37 @@ extensions.configure(ModDevExtension::class.java) {
         }
     }
 
-    runs {
-        create("client") {
-            client()
-        }
+    if(!ApexExtension.IS_CI) {
+        runs {
+            create("client") {
+                client()
+            }
 
-        create("server") {
-            server()
-        }
+            create("server") {
+                server()
+            }
 
-        configureEach {
-            logLevel.set(Level.DEBUG)
-            gameDirectory.set(type.map { layout.projectDirectory.dir("run/$it") })
-            // sourceSet.convention(sourceSets[SourceSet.MAIN_SOURCE_SET_NAME])
-            // loadedMods.convention(mods)
-            systemProperty("terminal.ansi", "true") // fix terminal not having colors
-            ideFolderName.set(type.map { it.capitalize() })
+            configureEach {
+                logLevel.set(Level.DEBUG)
+                gameDirectory.set(type.map { layout.projectDirectory.dir("run/$it") })
+                // sourceSet.convention(sourceSets[SourceSet.MAIN_SOURCE_SET_NAME])
+                // loadedMods.convention(mods)
+                systemProperty("terminal.ansi", "true") // fix terminal not having colors
+                ideFolderName.set(type.map { it.capitalize() })
 
-            jvmArguments.addAll(type.map {
-                if(ApexExtension.IS_CI || !(it.equals("client") || it.equals("server")))
+                jvmArguments.addAll(type.map {
+                    if(!it.equals("client") || it.equals("server")) {
+                        return@map listOf(
+                            "-XX:+AllowEnhancedClassRedefinition",
+                            "-XX:+IgnoreUnrecognizedVMOptions",
+                            "-XX:+AllowRedefinitionToAddDeleteMethods",
+                            "-XX:+ClassUnloading"
+                        )
+                    }
+
                     return@map emptyList()
-
-                return@map listOf(
-                    "-XX:+AllowEnhancedClassRedefinition",
-                    "-XX:+IgnoreUnrecognizedVMOptions",
-                    "-XX:+AllowRedefinitionToAddDeleteMethods",
-                    "-XX:+ClassUnloading"
-                )
-            })
+                })
+            }
         }
     }
 
