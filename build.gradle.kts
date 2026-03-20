@@ -39,7 +39,7 @@ java {
 }
 
 repositories {
-    maven("https://maven.apexstudios.dev/proxy")
+    maven("https://maven.apexmodder.com/proxy")
     gradlePluginPortal()
     mavenCentral()
 }
@@ -57,7 +57,7 @@ tasks.withType<JavaCompile> {
 publishing {
     repositories {
         if(MAVEN_USERNAME.isPresent && MAVEN_PASSWORD.isPresent) {
-            maven("https://maven.apexstudios.dev/releases") {
+            maven("https://maven.apexmodder.com/releases") {
                 name = "ApexStudios-Releases"
 
                 credentials {

@@ -17,7 +17,7 @@ publishing {
 
     repositories {
         if(System.getenv("MAVEN_USERNAME") != null && System.getenv("MAVEN_PASSWORD") != null) {
-            maven("https://maven.apexstudios.dev/releases") {
+            maven("https://maven.apexmodder.com/releases") {
                 name = "ApexStudios-Releases"
 
                 credentials {

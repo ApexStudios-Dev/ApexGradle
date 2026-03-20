@@ -1,6 +1,6 @@
 pluginManagement {
     repositories {
-        maven("https://maven.apexstudios.dev/proxy")
+        maven("https://maven.apexmodder.com/proxy")
         gradlePluginPortal()
     }
 }

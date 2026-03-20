@@ -55,5 +55,5 @@ tasks.withType<JavaCompile> {
 }
 
 repositories {
-    maven("https://maven.apexstudios.dev/proxy")
+    maven("https://maven.apexmodder.com/proxy")
 }
