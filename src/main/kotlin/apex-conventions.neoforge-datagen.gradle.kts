@@ -47,6 +47,10 @@ extensions.configure(ModDevExtension::class.java) {
                 "--output", file("src/data/generated").absolutePath,
                 "--existing", file("src/${SourceSet.MAIN_SOURCE_SET_NAME}/resources").absolutePath
             )
+
+            if(ApexExtension.IS_CI) {
+                programArguments.add("--uncached")
+            }
         }
     }
 }
