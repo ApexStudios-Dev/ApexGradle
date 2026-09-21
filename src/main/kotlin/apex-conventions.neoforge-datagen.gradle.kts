@@ -45,8 +45,7 @@ extensions.configure(ModDevExtension::class.java) {
                 "--mod", ApexExtension.modId(project),
                 "--all",
                 "--output", file("src/data/generated").absolutePath,
-                "--existing", file("src/${SourceSet.MAIN_SOURCE_SET_NAME}/resources").absolutePath,
-                "--uncached"
+                "--existing", file("src/${SourceSet.MAIN_SOURCE_SET_NAME}/resources").absolutePath
             )
         }
     }
